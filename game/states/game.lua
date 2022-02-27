@@ -39,7 +39,7 @@ function state:enter(prev_state, args)
     self.joint = love.physics.newFrictionJoint( objects.block1.body, objects.block2.body, width - 450, height - 100, true)
 
     love.graphics.setBackgroundColor(0.41, 0.53, 0.97) --set the background color to a nice blue
-    love.window.setMode(650, 650) --set the window dimensions to 650 by 650 with no fullscreen, vsync on, and no antialiasing
+    -- love.window.setMode(650, 650) --set the window dimensions to 650 by 650 with no fullscreen, vsync on, and no antialiasing
 end
 
 function state:mousepressed(x, y)
