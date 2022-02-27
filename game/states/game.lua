@@ -24,15 +24,12 @@ function state:enter(prev_state, args)
     objects.ground.fixture:setUserData("Ground")
 
 
+    love.physics.newFixture(love.physics.newBody(world, 0, height - 50/2), love.physics.newRectangleShape(50, height) )
+    love.physics.newFixture(love.physics.newBody(world, width - 50, height - 50/2), love.physics.newRectangleShape(50, height) )
+
     --let's create a ball
     objects.ball = {}
     objects.ball = createCircle(world, {x = width/2, y = height/2}, 20)
-
-    -- objects.ball.body = love.physics.newBody(world, width/2, height/2, "dynamic") --place the body in the center of the world and make it dynamic, so it can move around
-    -- objects.ball.shape = love.physics.newCircleShape( 20) --the ball's shape has a radius of 20\
-    -- objects.ball.fixture = love.physics.newFixture(objects.ball.body, objects.ball.shape, 3) -- Attach fixture to body and give it a density of 1.
-    -- objects.ball.fixture:setRestitution(0.9) --let the ball bounce
-    -- objects.ball.fixture:setUserData("Ball")
 
     --let's create a couple blocks to play around with
     objects.block1 = {}
@@ -160,7 +157,7 @@ end
 
 function dublicateCircle(circle)
     local range = circle:getShape():getRadius()/1.2
-    if range > 5 then
+    if range > 1 then
         local x, y = circle:getBody():getX(), circle:getBody():getY()
         local world = circle:getBody():getWorld()
         local velocity = {}
