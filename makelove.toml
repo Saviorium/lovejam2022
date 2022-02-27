@@ -1,0 +1,13 @@
+name = "lovejam2022"
+default_targets = ["win32", "win64", "appimage", "lovejs", "macos"]
+build_directory = "pkg"
+
+love_files = [
+    "::git-ls-tree::",
+    "-*/.*",
+    "-*.aseprite",
+    "-*.bat",
+    "-*.ps1",
+    "-*.toml",
+    "-*.sh",
+]
