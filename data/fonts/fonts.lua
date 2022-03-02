@@ -6,8 +6,10 @@ local fonts = {
             " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890-=_+[]{};':»,./<>?\\|*@#$%^&()!АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя"
         ),
         height = 7,
-        width = 4
+        width = 4,
+        size = 8
     },
+    rusPixelatedMono = { file = "data/fonts/vcr_osd_mono_rus.ttf", size = 24, pixelated = true},
     getFont = function(name, scale)
         scale = scale or 1
         local font = love.graphics.newFont(
@@ -22,5 +24,11 @@ local fonts = {
 }
 
 fonts.thin.font:setFilter("nearest", "nearest")
+
+if not config.graphics.originalScreenSize or not(config.graphics.originalScreenSize.x and config.graphics.originalScreenSize.y) then
+    config.graphics.originalScreenSize = {}
+    config.graphics.originalScreenSize.x = love.graphics.getWidth()
+    config.graphics.originalScreenSize.y = love.graphics.getHeight()
+end
 
 return fonts
