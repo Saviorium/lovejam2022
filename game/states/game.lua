@@ -86,6 +86,9 @@ end
 
 function state:keypressed(key)
     self.ui:keypressed(key)
+     if self.creatingBody then
+        self.creatingBody:keypressed(key)
+    end
 end
 
 function state:update(dt)

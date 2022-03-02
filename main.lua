@@ -26,6 +26,7 @@ states = {
 function love.load()
     love.graphics.setDefaultFilter('nearest', 'nearest')
     StateManager.switch(states.game)
+    love.keyboard.setKeyRepeat( true )
 end
 
 function love.draw()
