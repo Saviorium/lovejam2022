@@ -108,7 +108,7 @@ function state:update(dt)
 
         for ind, object in pairs(destroyQueue) do
             if not object:isDestroyed() then
-                if object:getUserData() == 'Ball' then
+                if object:getUserData().name == 'Ball' then
                     Circle.dublicateCircle(object)
                 else
                     object:destroy()

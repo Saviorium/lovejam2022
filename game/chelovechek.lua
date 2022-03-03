@@ -21,13 +21,15 @@ local Chelovechek = Class{
 }
 
 function Chelovechek:fixPart(body, shape, dens, part)
-    self.fixture1 = love.physics.newFixture(body, shape, dens) -- A higher density gives it more mass.
-    self.fixture1:setCategory(3)
-    self.fixture1:setUserData("Chelovechek"..part)
+    self['fixture'..part] = love.physics.newFixture(body, shape, dens) -- A higher density gives it more mass.
+    self['fixture'..part]:setCategory(3)
+    self['fixture'..part]:setUserData({
+                name = "Chelovechek"..part
+            })
 end
 
 function Chelovechek.destroyPart(part, state)
-	if part:getUserData() ~= 'ChelovechekBody' then
+	if part:getUserData().name ~= 'ChelovechekBody' then
 		part:destroy()
 	else
 		state.chelovechekDestroyed = true

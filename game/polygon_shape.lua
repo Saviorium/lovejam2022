@@ -96,22 +96,22 @@ function Polygon.checkVertexesAndCreatePolygon(state, vertex, body, fixture)
             table.insert(resultVectors, vec1)
         end
     end
-    local sum = 0
-    for ind1, vec1 in pairs(resultVectors) do
-        sum = sum + vec1.x * resultVectors[(ind1+1) < table.getn(resultVectors) and (ind1+1) or 1].y
-        sum = sum - resultVectors[(ind1+1) < table.getn(resultVectors) and (ind1+1) or 1].x * vec1.y
-        for ind2, vec2 in pairs(resultVectors) do
-            if vec1.x ~= vec2.x then
-                onOneLineX = false
-            end
-            if vec1.y ~= vec2.y then
-                onOneLineY = false
-            end
-        end
-    end
+    -- local sum = 0
+    -- for ind1, vec1 in pairs(resultVectors) do
+    --     sum = sum + vec1.x * resultVectors[(ind1+1) < table.getn(resultVectors) and (ind1+1) or 1].y
+    --     sum = sum - resultVectors[(ind1+1) < table.getn(resultVectors) and (ind1+1) or 1].x * vec1.y
+    --     for ind2, vec2 in pairs(resultVectors) do
+    --         if vec1.x ~= vec2.x then
+    --             onOneLineX = false
+    --         end
+    --         if vec1.y ~= vec2.y then
+    --             onOneLineY = false
+    --         end
+    --     end
+    -- end
 
     resultVectors = Utils.vectorsToVerticies(resultVectors)
-    if table.getn(resultVectors) > 4 and table.getn(resultVectors) <= 14 and (math.abs(sum/2) > 1) and not (onOneLineX or onOneLineY) then
+    if table.getn(resultVectors) > 4 and table.getn(resultVectors) <= 14 then -- and (math.abs(sum/2) > 1) and not (onOneLineX or onOneLineY) then
         return pcall(Polygon, { world = state.world, polygonVertexes = resultVectors, parentObject = {body = body, shape = fixture:getShape()}}) 
     end
     return false
