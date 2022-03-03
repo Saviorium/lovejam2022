@@ -10,7 +10,7 @@ local Polygon = Class{
             self.fixture:setMask( 3 )
             self.fixture:setCategory( 2 )
             self.fixture:setUserData({
-                name = "Block",
+                name = "BlockShape",
                 image = image
             })
         else
@@ -51,7 +51,7 @@ function Polygon.divideOnePolygon(objectShape, rx1, ry1, rx2, ry2)
             end
         end
     end
-    return Utils.verticiesToVectors(poly1), Utils.verticiesToVectors(poly2)
+    return Utils.vectorsToVerticies(poly1), Utils.vectorsToVerticies(poly2)
 end
 
 
@@ -66,8 +66,9 @@ function Polygon:splitObject(body, startPos, endPos)
         local lrx1, lry1 = body:getLocalPoint( r1HitX1, r1HitY1 )
         local lrx2, lry2 = body:getLocalPoint( r1HitX2, r1HitY2 )
         local vertex1, vertex2 = Polygon.divideOnePolygon(body:getFixtures()[1]:getShape(), math.floor(lrx1), math.floor(lry1), math.floor(lrx2), math.floor(lry2))
-
+        print(table.getn(vertex1), table.getn(vertex2))
         if table.getn(vertex1) > 4 and table.getn(vertex2) > 4 and table.getn(vertex1) < 14 and table.getn(vertex2) < 14 then
+                    print('Lol')
             Polygon({ world = self.world, polygonVertexes = vertex1, parentObject = {body = body, shape = body:getFixtures()[1]:getShape()}})
             Polygon({ world = self.world, polygonVertexes = vertex2, parentObject = {body = body, shape = body:getFixtures()[1]:getShape()}})
         end

@@ -28,8 +28,12 @@ function state:enter(prev_state, args)
     objects.ground.fixture:setMask( 3 )
     objects.ground.fixture:setCategory( 1 )
 
-    love.physics.newFixture(love.physics.newBody(world, 0, height - 50/2), love.physics.newRectangleShape(50, height) )
-    love.physics.newFixture(love.physics.newBody(world, width - 50, height - 50/2), love.physics.newRectangleShape(50, height) )
+    love.physics.newFixture(love.physics.newBody(world, 0, height - 50/2), love.physics.newRectangleShape(50, height) ):setUserData({
+        name = "Ground",
+    })
+    love.physics.newFixture(love.physics.newBody(world, width - 50, height - 50/2), love.physics.newRectangleShape(50, height) ):setUserData({
+        name = "Ground",
+    })
 
 
     --let's create a ball
@@ -135,19 +139,16 @@ function state:draw()
     love.graphics.polygon("fill", objects.ground.body:getWorldPoints(objects.ground.shape:getPoints())) -- draw a "filled in" polygon using the ground's coordinates
 
     for ind, obj in pairs(self.world:getBodies()) do
-        local fixture = obj:getFixtures()[1]
-        local userData = fixture:getUserData()
-        local shapeName = userData and userData.name or nil
-
-        if shapeName == 'Ball' then
-            love.graphics.setColor(0.76, 0.18, 0.05) --set the drawing color to red for the ball
-            love.graphics.circle("fill", obj:getX(), obj:getY(), fixture:getShape():getRadius())
-        elseif shapeName == 'Block' then
-            love.graphics.setColor(0.20, 0.20, 0.20) -- set the drawing color to grey for the blocks
-            love.graphics.polygon("fill", obj:getWorldPoints(fixture:getShape():getPoints()))
-        elseif shapeName == 'BlockShape' then
-            love.graphics.setColor(0.20, 0.20, 0.20) -- set the drawing color to grey for the blocks
-            love.graphics.polygon("fill", obj:getWorldPoints(fixture:getShape():getPoints()))
+        for _, fixture in pairs(obj:getFixtures()) do
+            local userData = fixture:getUserData()
+            local shapeName = userData and userData.name or nil
+            if shapeName == 'Ball' then
+                love.graphics.setColor(0.76, 0.18, 0.05) --set the drawing color to red for the ball
+                love.graphics.circle("fill", obj:getX(), obj:getY(), fixture:getShape():getRadius())
+            elseif fixture:getShape():getPoints() then
+                love.graphics.setColor(0.20, 0.20, 0.20) -- set the drawing color to grey for the blocks
+                love.graphics.polygon("fill", obj:getWorldPoints(fixture:getShape():getPoints()))
+            end
         end
     end
             love.graphics.setColor(0.76, 0.18, 0.05) --set the drawing color to red for the ball
