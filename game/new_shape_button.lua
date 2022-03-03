@@ -8,7 +8,8 @@ local fontsCache = {
 }
 
 return function( params )
-	local Ui, LabelText, position, state, polygonVertexes, name  = params.Ui, params.LabelText, params.position, params.state, params.polygonVertexes, params.name
+	local Ui, 		 LabelText, 	   position, 		state, 		  polygonVertexes, 		  name, 	   size, 		cost  		= 
+   		  params.Ui, params.LabelText, params.position, params.state, params.polygonVertexes, params.name, params.size, params.cost  
 
 	local NewShapeButton = Ui:registerNewObject(
     name,
@@ -16,15 +17,18 @@ return function( params )
     {
         tag = name,
         callback = function(btn, params)
-            state.joint = nil
-            local x, y = love.mouse.getPosition()
-            state.creatingBody = CreatingPolygon({world = state.world, 
-            	position = {x = x, y = y}, 
-            	polygonVertexes = polygonVertexes, 
-            	state = state})
+        	if cost and state.pointForBuild > cost then
+        		state.pointForBuild = state.pointForBuild - cost
+	            state.joint = nil
+	            local x, y = love.mouse.getPosition()
+	            state.creatingBody = CreatingPolygon({world = state.world, 
+	            	position = {x = x, y = y}, 
+	            	polygonVertexes = polygonVertexes, 
+	            	state = state})
+	        end
         end,
-        width = love.graphics.getHeight()*0.1,
-        height = love.graphics.getHeight()*0.1,
+        width = size.width or love.graphics.getHeight()*0.1,
+        height = size.height or love.graphics.getHeight()*0.1,
         nineSliceImagePrefix = "box-button-dithered",
         nineSliceBorder = Vector(10, 38),
     },

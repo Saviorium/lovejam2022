@@ -55,30 +55,66 @@ function Polygon.divideOnePolygon(objectShape, rx1, ry1, rx2, ry2)
 end
 
 
-function Polygon:splitObject(body, startPos, endPos)
-    local x1, y1, f1 = body:getFixtures()[1]:rayCast(startPos.x, startPos.y, endPos.x, endPos.y, 1)
-    local x2, y2, f2 = body:getFixtures()[1]:rayCast(endPos.x, endPos.y, startPos.x, startPos.y, 1)
-    if f1 and f2 then
-        local r1HitX1 = startPos.x + (endPos.x - startPos.x) * f1
-        local r1HitY1 = startPos.y + (endPos.y - startPos.y) * f1
-        local r1HitX2 = endPos.x + (startPos.x - endPos.x) * f2
-        local r1HitY2 = endPos.y + (startPos.y - endPos.y) * f2
-        local lrx1, lry1 = body:getLocalPoint( r1HitX1, r1HitY1 )
-        local lrx2, lry2 = body:getLocalPoint( r1HitX2, r1HitY2 )
-        local vertex1, vertex2 = Polygon.divideOnePolygon(body:getFixtures()[1]:getShape(), math.floor(lrx1), math.floor(lry1), math.floor(lrx2), math.floor(lry2))
-        print(table.getn(vertex1), table.getn(vertex2))
-        if table.getn(vertex1) > 4 and table.getn(vertex2) > 4 and table.getn(vertex1) < 14 and table.getn(vertex2) < 14 then
-                    print('Lol')
-            Polygon({ world = self.world, polygonVertexes = vertex1, parentObject = {body = body, shape = body:getFixtures()[1]:getShape()}})
-            Polygon({ world = self.world, polygonVertexes = vertex2, parentObject = {body = body, shape = body:getFixtures()[1]:getShape()}})
-        end
+function Polygon.splitObject(state, body, startPos, endPos)
+    for _, fixture in pairs(body:getFixtures()) do
+        local x1, y1, f1 = fixture:rayCast(startPos.x, startPos.y, endPos.x, endPos.y, 1)
+        local x2, y2, f2 = fixture:rayCast(endPos.x, endPos.y, startPos.x, startPos.y, 1)
+        if f1 and f2 then
+            local r1HitX1 = startPos.x + (endPos.x - startPos.x) * f1
+            local r1HitY1 = startPos.y + (endPos.y - startPos.y) * f1
+            local r1HitX2 = endPos.x + (startPos.x - endPos.x) * f2
+            local r1HitY2 = endPos.y + (startPos.y - endPos.y) * f2
+            local lrx1, lry1 = body:getLocalPoint( r1HitX1, r1HitY1 )
+            local lrx2, lry2 = body:getLocalPoint( r1HitX2, r1HitY2 )
+            local vertex1, vertex2 = Polygon.divideOnePolygon(fixture:getShape(), math.floor(lrx1), math.floor(lry1), math.floor(lrx2), math.floor(lry2))
+            
+            Polygon.checkVertexesAndCreatePolygon(state, vertex1, body, fixture)
+            Polygon.checkVertexesAndCreatePolygon(state, vertex2, body, fixture)
 
-        body:destroy()
+            fixture:destroy()
+        end
     end
 end
 
 function Polygon:draw()
     love.graphics.draw(self.image)
+end
+
+function Polygon.checkVertexesAndCreatePolygon(state, vertex, body, fixture)
+    local equalVertexes = false
+    local onOneLineX, onOneLineY = true, true
+    local vectors = Utils.verticiesToVectors(vertex)
+    local resultVectors = {}
+    for ind1, vec1 in pairs(vectors) do
+        equalVertexes = false
+        for ind2, vec2 in pairs(vectors) do
+            if vec1 == vec2 and ind1 ~= ind2 then
+                equalVertexes = true 
+            end
+        end
+        if not equalVertexes then
+            table.insert(resultVectors, vec1)
+        end
+    end
+    local sum = 0
+    for ind1, vec1 in pairs(resultVectors) do
+        sum = sum + vec1.x * resultVectors[(ind1+1) < table.getn(resultVectors) and (ind1+1) or 1].y
+        sum = sum - resultVectors[(ind1+1) < table.getn(resultVectors) and (ind1+1) or 1].x * vec1.y
+        for ind2, vec2 in pairs(resultVectors) do
+            if vec1.x ~= vec2.x then
+                onOneLineX = false
+            end
+            if vec1.y ~= vec2.y then
+                onOneLineY = false
+            end
+        end
+    end
+
+    resultVectors = Utils.vectorsToVerticies(resultVectors)
+    if table.getn(resultVectors) > 4 and table.getn(resultVectors) <= 14 and (math.abs(sum/2) > 1) and not (onOneLineX or onOneLineY) then
+        return pcall(Polygon, { world = state.world, polygonVertexes = resultVectors, parentObject = {body = body, shape = fixture:getShape()}}) 
+    end
+    return false
 end
 
 return Polygon

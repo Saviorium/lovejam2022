@@ -1,5 +1,6 @@
 local Circle = require"game.circle_shape"
 local Polygon = require"game.polygon_shape"
+local Chelovechek = require"game.chelovechek"
 
 local state = {}
 local destroyQueue = {}
@@ -56,6 +57,7 @@ function state:enter(prev_state, args)
     self.touchPoints = {}
     self.brokenObjects = {}
 
+    self.pointForBuild = 1000
     self.ui = require "game.ui"(self)
 end
 
@@ -66,8 +68,10 @@ function state:mousepressed(x, y)
     self.ui:mousepressed(x, y)
     if self.creatingBody then
         self.creatingBody.body:setFixedRotation( false )
-        self.creatingBody.fixture:setCategory(2)
-        self.creatingBody.fixture:setMask(3)
+        for _, fix in pairs(self.creatingBody.body:getFixtures()) do
+            fix:setCategory(2)  
+            fix:setMask(3) 
+        end   
         self.joint:destroy()
         self.joint = nil
         self.creatingBody = nil
@@ -98,37 +102,43 @@ function state:keypressed(key)
 end
 
 function state:update(dt)
-    self.world:update(dt) --this puts the world into motion
-    self.ui:update(dt)
+    if not self.chelovechekDestroyed then
+        self.world:update(dt) --this puts the world into motion
+        self.ui:update(dt)
 
-    for ind, circle in pairs(destroyQueue) do
-        if not circle:isDestroyed() then
-            Circle.dublicateCircle(circle)
+        for ind, object in pairs(destroyQueue) do
+            if not object:isDestroyed() then
+                if object:getUserData() == 'Ball' then
+                    Circle.dublicateCircle(object)
+                else
+                    object:destroy()
+                end
+            end
+            destroyQueue[ind] = nil
         end
-        destroyQueue[ind] = nil
-    end
 
-    if self.joint then
-        local cx, cy = self.creatingBody.body:getLocalCenter()
-        local x, y = love.mouse.getPosition()
-        self.joint:setTarget(x + cx, y + cy)
-    end
+        if self.joint then
+            local cx, cy = self.creatingBody.body:getLocalCenter()
+            local x, y = love.mouse.getPosition()
+            self.joint:setTarget(x + cx, y + cy)
+        end
 
-    for _, object in pairs(self.brokenObjects) do
-        if not object.object:isDestroyed() then
-            local x1, y1, f1 = nil, nil, nil
-            local power = 1
-            local startVector = nil
-            repeat
-                power = power * 10
-                startVector = object.position - object.normal * power
-                x1, y1, f1 = object.object:rayCast(startVector.x, startVector.y, object.position.x, object.position.y, 1)
-            until f1
+        for _, object in pairs(self.brokenObjects) do
+            if not object.object:isDestroyed() then
+                local x1, y1, f1 = nil, nil, nil
+                local power = 1
+                local startVector = nil
+                repeat
+                    power = power * 10
+                    startVector = object.position - object.normal * power
+                    x1, y1, f1 = object.object:rayCast(startVector.x, startVector.y, object.position.x, object.position.y, 1)
+                until f1
 
-            local r1HitX1 = startVector.x + (object.position.x - startVector.x) * f1
-            local r1HitY1 = startVector.y + (object.position.y - startVector.y) * f1
+                local r1HitX1 = startVector.x + (object.position.x - startVector.x) * f1
+                local r1HitY1 = startVector.y + (object.position.y - startVector.y) * f1
 
-            Polygon.splitObject(self, object.object:getBody(), object.position, Vector(r1HitX1, r1HitY1))
+                Polygon.splitObject(self, object.object:getBody(), object.position, Vector(r1HitX1, r1HitY1))
+            end
         end
     end
 end
@@ -185,16 +195,22 @@ function postSolve(a, b, coll, normalimpulse, tangentimpulse)
         elseif bName == 'Ball'  and aName ~= 'Ball' then
             table.insert(destroyQueue, b)
         end
-    elseif normalimpulse > 500 and not(aName == 'Ball' or bName == 'Ball') then
-        local x1, y1,x2, y2 = coll:getPositions()
-        local nx, ny = coll:getNormal( )
-        table.insert(state.touchPoints, Vector(x1, y1))
-        table.insert(state.touchPoints, Vector(x2, y2))
-        if aName ~= 'Ground' then
-            table.insert(state.brokenObjects, {object = a, position = Vector(x1, y1), normal = Vector( nx, ny )})
-        end
-        if bName ~= 'Ground' then
-            table.insert(state.brokenObjects, {object = b, position = Vector(x2, y2), normal = Vector( nx, ny )})
+    end
+
+    if normalimpulse > 500 and not(aName == 'Ball' or bName == 'Ball') then
+        if string.sub(aName,1, -5) == 'Chelovechek' or string.sub(bName,1, -5) == 'Chelovechek' then
+            Chelovechek.destroyPart(string.sub(aName,1, -5) == 'Chelovechek' and a or b, state)
+        else
+            local x1, y1,x2, y2 = coll:getPositions()
+            local nx, ny = coll:getNormal( )
+            table.insert(state.touchPoints, Vector(x1, y1)) 
+            table.insert(state.touchPoints, Vector(x2, y2))
+            if a:getUserData() ~= 'Ground' then
+                table.insert(state.brokenObjects, {object = a, position = Vector(x1, y1), normal = Vector( nx, ny )}) 
+            end
+            if b:getUserData() ~= 'Ground' then
+                table.insert(state.brokenObjects, {object = b, position = Vector(x2, y2), normal = Vector( nx, ny )}) 
+            end
         end
     end
 end
