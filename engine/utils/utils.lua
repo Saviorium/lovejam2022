@@ -98,9 +98,9 @@ Utils.colorFromHex = function (hex, value)  -- s-walrus/hex2color
     return {tonumber(string.sub(hex, 1, 2), 16)/256, tonumber(string.sub(hex, 3, 4), 16)/256, tonumber(string.sub(hex, 5, 6), 16)/256, value or 1}
 end
 
-function vectorsToVerticies(array)
+Utils.vectorsToVerticies = function(array)
     local result = {}
-    for _, point in pairs(array) do 
+    for _, point in pairs(array) do
         local x, y = point:unpack()
         table.insert(result, x)
         table.insert(result, y)
@@ -108,7 +108,7 @@ function vectorsToVerticies(array)
     return result
 end
 
-function verticiesToVectors(array)
+Utils.verticiesToVectors = function(array)
     local result = {}
     for ind, point in pairs(array) do
         if ind % 2 ~= 0 then

@@ -1,19 +1,21 @@
 
 local Circle = Class{
     init = function(self, params)
-    	local world, position, range, velocity = params.world, params.position, params.range, params.velocity
+        local world, position, range, velocity = params.world, params.position, params.range, params.velocity
 
-    	self.body = love.physics.newBody(world, position.x, position.y, "dynamic")
+        self.body = love.physics.newBody(world, position.x, position.y, "dynamic")
 	    self.shape = love.physics.newCircleShape(range)
 	    self.fixture = love.physics.newFixture(self.body, self.shape, 6)
 	    if velocity and velocity.x and velocity.y then
 	        self.body:setLinearVelocity(velocity.x, velocity.y)
 	    end
 	    self.fixture:setRestitution(0.9) --let the ball bounce
-	    self.fixture:setUserData("Ball")
+	    self.fixture:setUserData({
+            name = "Ball",
+        })
 	    self.fixture:setMask( 3 )
 	    self.fixture:setCategory( 2 )
-    end, 
+    end,
 }
 
 function Circle.dublicateCircle(circle)

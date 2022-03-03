@@ -1,7 +1,7 @@
 
 local Polygon = Class{
     init = function(self, params)
-    	local world, position, polygonVertexes, parentObject = params.world, params.position, params.polygonVertexes, params.parentObject
+        local world, position, polygonVertexes, parentObject, image = params.world, params.position, params.polygonVertexes, params.parentObject, params.image
         self.world = world
         if not parentObject then
             self.body = love.physics.newBody(world, position.x, position.y, "dynamic")
@@ -9,9 +9,12 @@ local Polygon = Class{
             self.fixture = love.physics.newFixture(self.body, self.shape, 2)
             self.fixture:setMask( 3 )
             self.fixture:setCategory( 2 )
-            self.fixture:setUserData("Block")
+            self.fixture:setUserData({
+                name = "Block",
+                image = image
+            })
         else
-            local velocity = {} 
+            local velocity = {}
             velocity.x, velocity.y = parentObject.body:getLinearVelocity()
 
             self.body = love.physics.newBody(world, parentObject.body:getX(), parentObject.body:getY(), "dynamic")
@@ -20,18 +23,20 @@ local Polygon = Class{
             self.body:setLinearVelocity(velocity.x, velocity.y)
             self.shape = love.physics.newPolygonShape(polygonVertexes)
             self.fixture = love.physics.newFixture(self.body, self.shape, 2)
-            self.fixture:setUserData("BlockShape")
+            self.fixture:setUserData({
+                name = "BlockShape",
+                image = image
+            })
             self.fixture:setMask( 3 )
             self.fixture:setCategory( 2 )
         end
-    end, 
+    end,
 }
-
 
 function Polygon.divideOnePolygon(objectShape, rx1, ry1, rx2, ry2)
     local poly1, poly2 = {Vector(rx1, ry1), Vector(rx2, ry2)}, {Vector(rx1, ry1), Vector(rx2, ry2)}
 
-    for _, point in pairs(verticiesToVectors({objectShape:getPoints()})) do
+    for _, point in pairs(Utils.verticiesToVectors({objectShape:getPoints()})) do
 
         local diff1, diff2 = Vector(point.x, point.y) - Vector(rx1, ry1), Vector(point.x, point.y) - Vector(rx2, ry2)
         if not (diff1:len() == 0 and diff2:len() == 0) then
@@ -46,7 +51,7 @@ function Polygon.divideOnePolygon(objectShape, rx1, ry1, rx2, ry2)
             end
         end
     end
-    return vectorsToVerticies(poly1), vectorsToVerticies(poly2)
+    return Utils.verticiesToVectors(poly1), Utils.verticiesToVectors(poly2)
 end
 
 
@@ -69,6 +74,10 @@ function Polygon:splitObject(body, startPos, endPos)
 
         body:destroy()
     end
+end
+
+function Polygon:draw()
+    love.graphics.draw(self.image)
 end
 
 return Polygon
