@@ -1,7 +1,7 @@
 
 local Polygon = Class{
     init = function(self, params)
-        local world, position, polygonVertexes, state = params.world, params.position, params.polygonVertexes, params.state
+        local world, position, polygonVertexes, state, image = params.world, params.position, params.polygonVertexes, params.state, params.image
 
         self.body = love.physics.newBody(world, position.x, position.y, "dynamic")
         self.body:setFixedRotation( true )
@@ -12,6 +12,7 @@ local Polygon = Class{
         self.fixture:setCategory(3)
         self.fixture:setUserData({
             name = "BlockShape",
+            image = image,
         })
 
         local cx, cy = self.body:getLocalCenter()

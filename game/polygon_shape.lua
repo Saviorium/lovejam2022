@@ -6,12 +6,14 @@ local Polygon = Class{
         if not parentObject then
             self.body = love.physics.newBody(world, position.x, position.y, "dynamic")
             self.shape = love.physics.newPolygonShape(polygonVertexes)
+            local texture = self:getTexture(image, {self.shape:getPoints()})
             self.fixture = love.physics.newFixture(self.body, self.shape, 2)
             self.fixture:setMask( 3 )
             self.fixture:setCategory( 2 )
             self.fixture:setUserData({
                 name = "BlockShape",
-                image = image
+                image = image,
+                texture = texture,
             })
         else
             local velocity = {}
@@ -22,10 +24,12 @@ local Polygon = Class{
             self.body:setAngularVelocity(parentObject.body:getAngularVelocity())
             self.body:setLinearVelocity(velocity.x, velocity.y)
             self.shape = love.physics.newPolygonShape(polygonVertexes)
+            local texture = self:getTexture(image, {self.shape:getPoints()})
             self.fixture = love.physics.newFixture(self.body, self.shape, 2)
             self.fixture:setUserData({
                 name = "BlockShape",
-                image = image
+                image = image,
+                texture = texture,
             })
             self.fixture:setMask( 3 )
             self.fixture:setCategory( 2 )
@@ -54,6 +58,21 @@ function Polygon.divideOnePolygon(objectShape, rx1, ry1, rx2, ry2)
     return Utils.vectorsToVerticies(poly1), Utils.vectorsToVerticies(poly2)
 end
 
+function Polygon:getTexture(image, polygon)
+    vardump(image, polygon)
+    if not image then
+        return
+    end
+    local texture = love.graphics.newCanvas(image:getWidth(), image:getHeight())
+    texture:renderTo( function()
+        local mode, alphamode = love.graphics.getBlendMode( )
+        love.graphics.polygon("fill", polygon)
+        love.graphics.setBlendMode("multiply", "premultiplied")
+        love.graphics.draw(image)
+        love.graphics.setBlendMode(mode, alphamode)
+    end)
+    return texture
+end
 
 function Polygon.splitObject(state, body, startPos, endPos)
     for _, fixture in pairs(body:getFixtures()) do
@@ -67,9 +86,9 @@ function Polygon.splitObject(state, body, startPos, endPos)
             local lrx1, lry1 = body:getLocalPoint( r1HitX1, r1HitY1 )
             local lrx2, lry2 = body:getLocalPoint( r1HitX2, r1HitY2 )
             local vertex1, vertex2 = Polygon.divideOnePolygon(fixture:getShape(), math.floor(lrx1), math.floor(lry1), math.floor(lrx2), math.floor(lry2))
-            
-            Polygon.checkVertexesAndCreatePolygon(state, vertex1, body, fixture)
-            Polygon.checkVertexesAndCreatePolygon(state, vertex2, body, fixture)
+
+            vardump(Polygon.checkVertexesAndCreatePolygon(state, vertex1, body, fixture))
+            vardump(Polygon.checkVertexesAndCreatePolygon(state, vertex2, body, fixture))
 
             fixture:destroy()
         end
@@ -89,7 +108,7 @@ function Polygon.checkVertexesAndCreatePolygon(state, vertex, body, fixture)
         equalVertexes = false
         for ind2, vec2 in pairs(vectors) do
             if vec1 == vec2 and ind1 ~= ind2 then
-                equalVertexes = true 
+                equalVertexes = true
             end
         end
         if not equalVertexes then
@@ -112,7 +131,8 @@ function Polygon.checkVertexesAndCreatePolygon(state, vertex, body, fixture)
 
     resultVectors = Utils.vectorsToVerticies(resultVectors)
     if table.getn(resultVectors) > 4 and table.getn(resultVectors) <= 14 then -- and (math.abs(sum/2) > 1) and not (onOneLineX or onOneLineY) then
-        return pcall(Polygon, { world = state.world, polygonVertexes = resultVectors, parentObject = {body = body, shape = fixture:getShape()}}) 
+        local userData = fixture:getUserData()
+        return pcall(Polygon, { world = state.world, polygonVertexes = resultVectors, parentObject = {body = body, shape = fixture:getShape()}, image = userData.image })
     end
     return false
 end

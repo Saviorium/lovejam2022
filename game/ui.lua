@@ -15,30 +15,36 @@ local fontsCache = {
 
 return function(state)
 
-	local Ui = UiObject(nil, {
-	    tag = "main-ui"
-	 })
+    local Ui = UiObject(nil, {
+        tag = "main-ui"
+     })
 
 	NewShapeButton({Ui = Ui, name = 'Block',
 		LabelText = 'Блок', 
 		position = {up = love.graphics.getHeight()*0.1, left = 0}, 
 		state = state, 
 		polygonVertexes = {0, 0, 100, 0, 100, 50, 0, 50},
-		cost = 100, size = {width = love.graphics.getWidth()*0.2, heigth = love.graphics.getHeight()*0.1} })
+		cost = 100, size = {width = love.graphics.getWidth()*0.2, heigth = love.graphics.getHeight()*0.1},
+        image = "triangle-block",
+    })
 
 	NewShapeButton({Ui = Ui, name = 'Triangle',
 		LabelText = 'Треугольник', 
 		position = {up = love.graphics.getHeight()*0.1, left = love.graphics.getWidth()*0.2}, 
 		state = state, 
-		polygonVertexes = {0, 0, 50, -50, 100, 0},
-		cost = 100, size = {width = love.graphics.getWidth()*0.2, heigth = love.graphics.getHeight()*0.1} })
+		polygonVertexes = {101, 0, 202, 54, 0, 54},
+		cost = 100, size = {width = love.graphics.getWidth()*0.2, heigth = love.graphics.getHeight()*0.1},
+        image = "triangle-block",
+    })
 
 	NewShapeButton({Ui = Ui, name = 'Column',
 		LabelText = 'Колонна', 
 		position = {up = love.graphics.getHeight()*0.1, left = love.graphics.getWidth()*0.6}, 
 		state = state, 
 		polygonVertexes = {0, 0, 20, 0, 20, 100, 0, 100},
-		cost = 100, size = {width = love.graphics.getWidth()*0.2, heigth = love.graphics.getHeight()*0.1} })
+		cost = 100, size = {width = love.graphics.getWidth()*0.2, heigth = love.graphics.getHeight()*0.1},
+        image = "triangle-block",
+    })
 
    
 	local NewShapeButton = Ui:registerNewObject(

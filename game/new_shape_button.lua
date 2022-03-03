@@ -8,24 +8,26 @@ local fontsCache = {
 }
 
 return function( params )
-	local Ui, 		 LabelText, 	   position, 		state, 		  polygonVertexes, 		  name, 	   size, 		cost  		= 
-   		  params.Ui, params.LabelText, params.position, params.state, params.polygonVertexes, params.name, params.size, params.cost  
+    local Ui, 		 LabelText, 	   position, 		state, 		  polygonVertexes, 		  name, 	   size, 		cost,        image = 
+             params.Ui, params.LabelText, params.position, params.state, params.polygonVertexes, params.name, params.size, params.cost, params.image
 
-	local NewShapeButton = Ui:registerNewObject(
+    local NewShapeButton = Ui:registerNewObject(
     name,
     position, --{down = love.graphics.getHeight()*0.2, left = 0},
     {
         tag = name,
         callback = function(btn, params)
-        	if cost and state.pointForBuild > cost then
-        		state.pointForBuild = state.pointForBuild - cost
-	            state.joint = nil
-	            local x, y = love.mouse.getPosition()
-	            state.creatingBody = CreatingPolygon({world = state.world, 
-	            	position = {x = x, y = y}, 
-	            	polygonVertexes = polygonVertexes, 
-	            	state = state})
-	        end
+            if cost and state.pointForBuild > cost then
+                state.pointForBuild = state.pointForBuild - cost
+                state.joint = nil
+                local x, y = love.mouse.getPosition()
+                state.creatingBody = CreatingPolygon({world = state.world,
+                    position = {x = x, y = y},
+                    polygonVertexes = polygonVertexes,
+                    state = state,
+                    image = AssetManager:getImage(image),
+                })
+            end
         end,
         width = size.width or love.graphics.getHeight()*0.1,
         height = size.height or love.graphics.getHeight()*0.1,
@@ -35,22 +37,22 @@ return function( params )
     NineSliceButton
     )
 
-	local label = NewShapeButton:registerNewObject(
-	        "Button-label",
-	        {
-	            align = "center",
-	            left = NewShapeButton.width * 0.1,
-	        },
-	        {
-	            align = "left",
-	            verticalAlign = "center",
-	            tag =  "Button-label",
-	            text = LabelText,
-	            font = fontsCache.thin(),
-	            width = NewShapeButton.width * 0.8,
-	            outline = 1,
-	        },
-	        Label
-	    )
-	return NewShapeButton
+    local label = NewShapeButton:registerNewObject(
+            "Button-label",
+            {
+                align = "center",
+                left = NewShapeButton.width * 0.1,
+            },
+            {
+                align = "left",
+                verticalAlign = "center",
+                tag =  "Button-label",
+                text = LabelText,
+                font = fontsCache.thin(),
+                width = NewShapeButton.width * 0.8,
+                outline = 1,
+            },
+            Label
+        )
+    return NewShapeButton
 end

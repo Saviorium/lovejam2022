@@ -159,6 +159,16 @@ function state:draw()
                 love.graphics.setColor(0.20, 0.20, 0.20) -- set the drawing color to grey for the blocks
                 love.graphics.polygon("fill", obj:getWorldPoints(fixture:getShape():getPoints()))
             end
+
+            local texture = userData and userData.texture or nil
+            if texture then
+                love.graphics.push()
+                love.graphics.setColor(1,1,1,1)
+                love.graphics.translate(obj:getX(), obj:getY())
+                love.graphics.rotate(obj:getAngle())
+                love.graphics.draw(texture)
+                love.graphics.pop()
+            end
         end
     end
             love.graphics.setColor(0.76, 0.18, 0.05) --set the drawing color to red for the ball
