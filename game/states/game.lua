@@ -39,8 +39,9 @@ function state:enter(prev_state, args)
     self.timer = 0
 
     MusicPlayer:play("greece")
-    self.shakeRoundDuration = 30
-    self.shakeRound = false
+    self.shakeRoundDuration = 10
+    self.shakeRound = 1
+    self.shaking = false
 end
 
 function state:createNewGroundpolygon(world, numberOfVertexes)
@@ -134,22 +135,23 @@ end
 function state:update(dt)
     if not self.chelovechekDestroyed then
         self.world:update(dt) --this puts the world into motion
-        if not self.shakeRound then
+        if not self.shaking then
             self.ui:update(dt)
         end
 
         self:destroyObjects()
 
-        if self.shakeRound then
+        if self.shaking then
 
             local rand = love.math.random(4)
             self.timer = self.timer + dt
 
-            self:shakeGround( 1050000, 4 * math.sin(self.timer) * self.timer )
+            self:shakeGround( 1100000, 4 * math.sin(self.timer) * self.timer, self.shakeRound )
 
             if self.timer > self.shakeRoundDuration then
                 self.timer = 0
-                self.shakeRound = false
+                self.shakeRound = self.shakeRound + 1
+                self.shaking = false
             end
         end
 
@@ -215,7 +217,7 @@ function state:draw()
         end
     end
 
-    if not self.shakeRound then
+    if not self.shaking then
         self.ui:draw()
     end
     -- love.graphics.setColor(0.76, 0.18, 0.05)
@@ -256,10 +258,10 @@ function postSolve(a, b, coll, normalimpulse, tangentimpulse)
         -- table.insert(state.touchPoints, Vector(x1, y1)) 
         -- table.insert(state.touchPoints, Vector(x2, y2))
 
-        if aName ~= 'Ground' or (aName == 'Pillar' and a:getCategory( ) ~= 4 ) then
+        if aName ~= 'Ground' and not  (aName == 'Pillar' and a:getCategory( ) ~= 4 ) then
             table.insert(state.brokenObjects, {object = a, position = Vector(x1, y1), normal = Vector( nx, ny )}) 
         end
-        if bName ~= 'Ground' or (bName == 'Pillar' and b:getCategory( ) ~= 4 ) then
+        if bName ~= 'Ground' and not (bName == 'Pillar' and b:getCategory( ) ~= 4 ) then
             table.insert(state.brokenObjects, {object = b, position = Vector(x2, y2), normal = Vector( nx, ny )}) 
         end
     end
@@ -302,13 +304,13 @@ function state:destroyObjects()
     end
 end
 
-function state:shakeGround( shakeForce, shakeSeed )
+function state:shakeGround( shakeForce, shakeSeed, shakeRound )
     
     for ind, obj in pairs(self.world:getBodies()) do
         for _, fixture in pairs(obj:getFixtures()) do
             if fixture:getUserData().name == 'Ground' then
                 local x, y, mass, inertia = fixture:getMassData( )
-                obj:applyForce( 0, -shakeForce * math.sin( shakeSeed ))
+                obj:applyForce( 0, -(shakeForce * (shakeRound > 2 and 1.5 or 1) ) * math.sin(  shakeSeed * (shakeRound > 1 and x or 1) ))
             end
         end
     end

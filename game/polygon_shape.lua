@@ -32,8 +32,9 @@ local Polygon = Class{
                 image = image,
                 texture = texture,
             })
+            -- mask = mask or parentObject.body:getFixtures()[1]:getCategory()
             self.fixture:setMask( mask or {3} )
-            self.fixture:setCategory( 2 )
+            self.fixture:setCategory( parentObject.body:getFixtures()[1]:getCategory() )
         end
     end,
 }

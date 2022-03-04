@@ -26,6 +26,7 @@ return function(state)
 		polygonVertexes = {0, 0, 68, 0, 68, 36, 0, 36},
 		cost = 100, size = {width = love.graphics.getWidth()*0.2, heigth = love.graphics.getHeight()*0.1},
         image = "block-block",
+        polygonName = 'Pillar'
     })
 
 	NewShapeButton({Ui = Ui, name = 'Triangle',
