@@ -1,6 +1,7 @@
 config = {
     storage = {},
     graphics = {},
+    money = 10000,
 }
 
 Debug = {

@@ -20,33 +20,33 @@ return function(state)
      })
 
 	NewShapeButton({Ui = Ui, name = 'Block',
-		LabelText = 'Блок', 
-		position = {up = love.graphics.getHeight()*0.1, left = 0}, 
-		state = state, 
-		polygonVertexes = {0, 0, 100, 0, 100, 50, 0, 50},
+		LabelText = 'Блок',
+		position = {up = love.graphics.getHeight()*0.1, left = 0},
+		state = state,
+		polygonVertexes = {0, 0, 68, 0, 68, 36, 0, 36},
 		cost = 100, size = {width = love.graphics.getWidth()*0.2, heigth = love.graphics.getHeight()*0.1},
-        image = "triangle-block",
+        image = "block-block",
     })
 
 	NewShapeButton({Ui = Ui, name = 'Triangle',
-		LabelText = 'Треугольник', 
-		position = {up = love.graphics.getHeight()*0.1, left = love.graphics.getWidth()*0.2}, 
-		state = state, 
+		LabelText = 'Треугольник',
+		position = {up = love.graphics.getHeight()*0.1, left = love.graphics.getWidth()*0.2},
+		state = state,
 		polygonVertexes = {101, 0, 202, 54, 0, 54},
 		cost = 100, size = {width = love.graphics.getWidth()*0.2, heigth = love.graphics.getHeight()*0.1},
         image = "triangle-block",
     })
 
 	NewShapeButton({Ui = Ui, name = 'Column',
-		LabelText = 'Колонна', 
-		position = {up = love.graphics.getHeight()*0.1, left = love.graphics.getWidth()*0.6}, 
-		state = state, 
-		polygonVertexes = {0, 0, 20, 0, 20, 100, 0, 100},
+		LabelText = 'Колонна',
+		position = {up = love.graphics.getHeight()*0.1, left = love.graphics.getWidth()*0.6},
+		state = state,
+		polygonVertexes = {0, 0, 48, 0, 48, 146, 0, 146},
 		cost = 100, size = {width = love.graphics.getWidth()*0.2, heigth = love.graphics.getHeight()*0.1},
-        image = "triangle-block",
+        image = "column-block",
     })
 
-   
+
 	local NewShapeButton = Ui:registerNewObject(
 	    'Chelovechek-button',
 	    {up = love.graphics.getHeight()*0.1, left = love.graphics.getWidth()*0.8},

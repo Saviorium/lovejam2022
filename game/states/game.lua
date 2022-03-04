@@ -56,7 +56,7 @@ function state:enter(prev_state, args)
     self.touchPoints = {}
     self.brokenObjects = {}
 
-    self.pointForBuild = 1000
+    self.pointForBuild = config.money
     self.ui = require "game.ui"(self)
 end
 
@@ -172,13 +172,6 @@ function state:draw()
         for _, fixture in pairs(obj:getFixtures()) do
             local userData = fixture:getUserData()
             local shapeName = userData and userData.name or nil
-            if shapeName == 'Ball' then
-                love.graphics.setColor(0.76, 0.18, 0.05) --set the drawing color to red for the ball
-                love.graphics.circle("fill", obj:getX(), obj:getY(), fixture:getShape():getRadius())
-            elseif fixture:getShape():getPoints() then
-                love.graphics.setColor(0.20, 0.20, 0.20) -- set the drawing color to grey for the blocks
-                love.graphics.polygon("fill", obj:getWorldPoints(fixture:getShape():getPoints()))
-            end
 
             local texture = userData and userData.texture or nil
             if texture then
@@ -188,6 +181,12 @@ function state:draw()
                 love.graphics.rotate(obj:getAngle())
                 love.graphics.draw(texture)
                 love.graphics.pop()
+            elseif shapeName == 'Ball' then
+                love.graphics.setColor(0.76, 0.18, 0.05) --set the drawing color to red for the ball
+                love.graphics.circle("fill", obj:getX(), obj:getY(), fixture:getShape():getRadius())
+            elseif fixture:getShape():getPoints() then
+                love.graphics.setColor(0.20, 0.20, 0.20) -- set the drawing color to grey for the blocks
+                love.graphics.polygon("fill", obj:getWorldPoints(fixture:getShape():getPoints()))
             end
         end
     end

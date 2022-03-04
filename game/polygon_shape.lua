@@ -6,7 +6,7 @@ local Polygon = Class{
         if not parentObject then
             self.body = love.physics.newBody(world, position.x, position.y, "dynamic")
             self.shape = love.physics.newPolygonShape(polygonVertexes)
-            local texture = self:getTexture(image, {self.shape:getPoints()})
+            local texture = self.getTexture(image, {self.shape:getPoints()})
             self.fixture = love.physics.newFixture(self.body, self.shape, 2)
             self.fixture:setMask( 3 )
             self.fixture:setCategory( 2 )
@@ -24,7 +24,7 @@ local Polygon = Class{
             self.body:setAngularVelocity(parentObject.body:getAngularVelocity())
             self.body:setLinearVelocity(velocity.x, velocity.y)
             self.shape = love.physics.newPolygonShape(polygonVertexes)
-            local texture = self:getTexture(image, {self.shape:getPoints()})
+            local texture = self.getTexture(image, {self.shape:getPoints()})
             self.fixture = love.physics.newFixture(self.body, self.shape, 2)
             self.fixture:setUserData({
                 name = "BlockShape",
@@ -58,8 +58,7 @@ function Polygon.divideOnePolygon(objectShape, rx1, ry1, rx2, ry2)
     return Utils.vectorsToVerticies(poly1), Utils.vectorsToVerticies(poly2)
 end
 
-function Polygon:getTexture(image, polygon)
-    vardump(image, polygon)
+function Polygon.getTexture(image, polygon)
     if not image then
         return
     end
