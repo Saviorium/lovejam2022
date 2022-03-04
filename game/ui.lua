@@ -96,7 +96,7 @@ return function(state)
 	    {
 	        tag = 'Chelovechek-button',
 	        callback = function(btn, params)
-	        	state.shakeRound = true
+	        	state.shaking = true
 				SoundManager:play("earthquake")
 	        end,
 	        width = love.graphics.getWidth()*0.1,
