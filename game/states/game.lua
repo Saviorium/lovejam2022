@@ -20,21 +20,20 @@ function state:enter(prev_state, args)
     local objects = {}
     local width, height = love.graphics.getWidth(), love.graphics.getHeight()
     objects.ground = {}
-    objects.ground.body = love.physics.newBody(world, width/2, height - 50/2)
-    objects.ground.shape = love.physics.newRectangleShape(width, 50) 
-    objects.ground.fixture = love.physics.newFixture(objects.ground.body, objects.ground.shape)
-    objects.ground.fixture:setUserData({
-        name = "Ground",
-    })
-    objects.ground.fixture:setMask( 3 )
-    objects.ground.fixture:setCategory( 1 )
+    objects.ground.body = love.physics.newBody(world, 0, height + 50)
+    self:createNewGroundpolygon(objects.ground.body, 100.)
+    -- objects.ground.shape = love.physics.newPolygonShape(self:createNewGroundpolygon(4))
+    -- objects.ground.fixture = love.physics.newFixture(objects.ground.body, objects.ground.shape)
+    -- objects.ground.fixture:setUserData({
+    --     name = "Ground",
+    -- })
 
-    love.physics.newFixture(love.physics.newBody(world, 0, height - 50/2), love.physics.newRectangleShape(50, height) ):setUserData({
-        name = "Ground",
-    })
-    love.physics.newFixture(love.physics.newBody(world, width - 50, height - 50/2), love.physics.newRectangleShape(50, height) ):setUserData({
-        name = "Ground",
-    })
+    -- love.physics.newFixture(love.physics.newBody(world, 0, height - 50/2), love.physics.newRectangleShape(50, height) ):setUserData({
+    --     name = "Ground",
+    -- })
+    -- love.physics.newFixture(love.physics.newBody(world, width - 50, height - 50/2), love.physics.newRectangleShape(50, height) ):setUserData({
+    --     name = "Ground",
+    -- })
 
 
     --let's create a ball
@@ -59,6 +58,27 @@ function state:enter(prev_state, args)
 
     self.pointForBuild = 1000
     self.ui = require "game.ui"(self)
+end
+
+function state:createNewGroundpolygon(body, numberOfVertexes)
+
+    local vertexes = {Vector(0,0)}
+    local x, y = -50, 200
+    local iterX = (love.graphics.getWidth()-x)/numberOfVertexes
+    local heighMaxDifference = 10
+    for i = 1, numberOfVertexes do
+        local randomSeed = love.math.random(20) - 10
+        local lhmd = -(math.sin(math.deg(x + randomSeed)) + math.cos(math.deg(x - randomSeed))) * heighMaxDifference
+        local x2, y2 = x + iterX, (y + lhmd) > 150 and -(y + lhmd) or (y + lhmd)
+        local shape = love.physics.newPolygonShape(x, y, x2, y2, x2, 150, x, 150 )
+        local fixture = love.physics.newFixture(body, shape)
+        fixture:setUserData({
+            name = "Ground",
+        })
+        fixture:setMask( 3 )
+        fixture:setCategory( 1 )
+        x, y = x2, y2
+    end
 end
 
 function state:mousepressed(x, y)
@@ -146,7 +166,7 @@ end
 function state:draw()
     local objects = self.objects
     love.graphics.setColor(0.28, 0.63, 0.05) -- set the drawing color to green for the ground
-    love.graphics.polygon("fill", objects.ground.body:getWorldPoints(objects.ground.shape:getPoints())) -- draw a "filled in" polygon using the ground's coordinates
+    -- love.graphics.polygon("fill", objects.ground.body:getWorldPoints(objects.ground.shape:getPoints())) -- draw a "filled in" polygon using the ground's coordinates
 
     for ind, obj in pairs(self.world:getBodies()) do
         for _, fixture in pairs(obj:getFixtures()) do
