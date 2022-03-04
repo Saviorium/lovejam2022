@@ -17,7 +17,7 @@ return function( params )
     {
         tag = name,
         callback = function(btn, params)
-            if cost and state.pointForBuild > cost then
+            if cost and state.pointForBuild >= cost then
                 state.pointForBuild = state.pointForBuild - cost
                 state.joint = nil
                 local x, y = love.mouse.getPosition()

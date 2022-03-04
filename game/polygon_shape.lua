@@ -1,17 +1,17 @@
 
 local Polygon = Class{
     init = function(self, params)
-        local world, position, polygonVertexes, parentObject, image = params.world, params.position, params.polygonVertexes, params.parentObject, params.image
+        local world, position, polygonVertexes, parentObject, image, name = params.world, params.position, params.polygonVertexes, params.parentObject, params.image, params.name
         self.world = world
         if not parentObject then
             self.body = love.physics.newBody(world, position.x, position.y, "dynamic")
             self.shape = love.physics.newPolygonShape(polygonVertexes)
             local texture = self.getTexture(image, {self.shape:getPoints()})
-            self.fixture = love.physics.newFixture(self.body, self.shape, 2)
+            self.fixture = love.physics.newFixture(self.body, self.shape, 4)
             self.fixture:setMask( 3 )
             self.fixture:setCategory( 2 )
             self.fixture:setUserData({
-                name = "BlockShape",
+                name = name or "BlockShape",
                 image = image,
                 texture = texture,
             })
@@ -25,9 +25,9 @@ local Polygon = Class{
             self.body:setLinearVelocity(velocity.x, velocity.y)
             self.shape = love.physics.newPolygonShape(polygonVertexes)
             local texture = self.getTexture(image, {self.shape:getPoints()})
-            self.fixture = love.physics.newFixture(self.body, self.shape, 2)
+            self.fixture = love.physics.newFixture(self.body, self.shape, 4)
             self.fixture:setUserData({
-                name = "BlockShape",
+                name = name or "BlockShape",
                 image = image,
                 texture = texture,
             })
@@ -131,7 +131,7 @@ function Polygon.checkVertexesAndCreatePolygon(state, vertex, body, fixture)
     resultVectors = Utils.vectorsToVerticies(resultVectors)
     if table.getn(resultVectors) > 4 and table.getn(resultVectors) <= 14 then -- and (math.abs(sum/2) > 1) and not (onOneLineX or onOneLineY) then
         local userData = fixture:getUserData()
-        return pcall(Polygon, { world = state.world, polygonVertexes = resultVectors, parentObject = {body = body, shape = fixture:getShape()}, image = userData.image })
+        return pcall(Polygon, { world = state.world, polygonVertexes = resultVectors, parentObject = {body = body, shape = fixture:getShape()}, image = userData.image, name = fixture:getUserData().name })
     end
     return false
 end
