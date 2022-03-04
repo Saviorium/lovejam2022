@@ -45,7 +45,7 @@ function state:enter(prev_state, args)
     self.timer = 0
 
     MusicPlayer:play("greece")
-    self.shakeRoundDuration = 10
+    self.shakeRoundDuration = config.roundTime
     self.shakeRound = 1
     self.shaking = false
 end
@@ -154,6 +154,7 @@ function state:update(dt)
             self.ui:update(dt)
         end
         if self.gameOver then
+            self.endGameUi:update(dt)
         end
 
         self:destroyObjects()
@@ -167,8 +168,9 @@ function state:update(dt)
 
             if self.timer > self.shakeRoundDuration then
                 self.timer = 0
+                self.pointForBuild = self.pointForBuild + config.moneyPerRound
                 self.shakeRound = self.shakeRound + 1
-                if self.shakeRound >= config.rounds then
+                if self.shakeRound > config.rounds then
                     self:endGame(true, self:getFinalScore())
                 end
                 self.shaking = false
@@ -286,18 +288,18 @@ function postSolve(a, b, coll, normalimpulse, tangentimpulse)
     if normalimpulse > 750 and not(aName == 'Ball' or bName == 'Ball') then
         local x1, y1,x2, y2 = coll:getPositions()
         local nx, ny = coll:getNormal( )
-        -- table.insert(state.touchPoints, Vector(x1, y1)) 
+        -- table.insert(state.touchPoints, Vector(x1, y1))
         -- table.insert(state.touchPoints, Vector(x2, y2))
 
         if aName ~= 'Ground' and not  (aName == 'Pillar' and a:getCategory( ) ~= 4 ) then
-            table.insert(state.brokenObjects, {object = a, position = Vector(x1, y1), normal = Vector( nx, ny )}) 
+            table.insert(state.brokenObjects, {object = a, position = Vector(x1, y1), normal = Vector( nx, ny )})
         end
         if bName ~= 'Ground' and not (bName == 'Pillar' and b:getCategory( ) ~= 4 ) then
-            table.insert(state.brokenObjects, {object = b, position = Vector(x2, y2), normal = Vector( nx, ny )}) 
+            table.insert(state.brokenObjects, {object = b, position = Vector(x2, y2), normal = Vector( nx, ny )})
         end
     end
 
-    if normalimpulse > 500 and (string.sub(aName,1, -5) == 'Chelovechek' or string.sub(bName,1, -5) == 'Chelovechek') then
+    if normalimpulse > 250 and (string.sub(aName,1, -5) == 'Chelovechek' or string.sub(bName,1, -5) == 'Chelovechek') then
         Chelovechek.destroyPart(string.sub(aName,1, -5) == 'Chelovechek' and a or b, state)
     end
 end
@@ -336,12 +338,12 @@ function state:destroyObjects()
 end
 
 function state:shakeGround( shakeForce, shakeSeed, shakeRound )
-    
+
     for ind, obj in pairs(self.world:getBodies()) do
         for _, fixture in pairs(obj:getFixtures()) do
             if fixture:getUserData().name == 'Ground' then
                 local x, y, mass, inertia = fixture:getMassData( )
-                obj:applyForce( 0, -(shakeForce * (shakeRound > 2 and 1.5 or 1) ) * math.sin(  shakeSeed * (shakeRound > 1 and x or 1) ))
+                obj:applyForce( 0, -(shakeForce * (1 + 1 * (self.shakeRound - 1)) ) * math.sin(  shakeSeed * (shakeRound > 1 and x or 1) ))
             end
         end
     end
