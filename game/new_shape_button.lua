@@ -8,8 +8,8 @@ local fontsCache = {
 }
 
 return function( params )
-    local Ui, 		 LabelText, 	   position, 		state, 		  polygonVertexes, 		  name, 	   size, 		cost,        image = 
-             params.Ui, params.LabelText, params.position, params.state, params.polygonVertexes, params.name, params.size, params.cost, params.image
+    local Ui, LabelText, position, state, polygonVertexes, name, polygonName, size, cost, image, postCallback = 
+    params.Ui, params.LabelText, params.position, params.state, params.polygonVertexes, params.name, params.polygonName, params.size, params.cost, params.image, params.postCallback
 
     local NewShapeButton = Ui:registerNewObject(
     name,
@@ -26,6 +26,7 @@ return function( params )
                     polygonVertexes = polygonVertexes,
                     state = state,
                     image = AssetManager:getImage(image),
+                    name = polygonName,
                 })
             end
         end,

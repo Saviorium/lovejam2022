@@ -2,18 +2,18 @@ local PolygonShape = require "game.polygon_shape"
 
 local Polygon = Class{
     init = function(self, params)
-        local world, position, polygonVertexes, state, image = params.world, params.position, params.polygonVertexes, params.state, params.image
+        local world, position, polygonVertexes, state, image, name = params.world, params.position, params.polygonVertexes, params.state, params.image, params.name
 
         self.body = love.physics.newBody(world, position.x, position.y, "dynamic")
         self.body:setFixedRotation( true )
-        -- body:setAngle(30*math.pi/180)
+
         self.shape = love.physics.newPolygonShape(polygonVertexes)
         local texture = PolygonShape.getTexture(image, {self.shape:getPoints()})
         self.fixture = love.physics.newFixture(self.body, self.shape, 5) -- A higher density gives it more mass.
 
         self.fixture:setCategory(3)
         self.fixture:setUserData({
-            name = "BlockShape",
+            name = name or "BlockShape",
             image = image,
             texture = texture,
         })

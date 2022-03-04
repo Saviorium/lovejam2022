@@ -1,14 +1,15 @@
 
 local Polygon = Class{
     init = function(self, params)
-        local world, position, polygonVertexes, parentObject, image, name = params.world, params.position, params.polygonVertexes, params.parentObject, params.image, params.name
+        local world, position, polygonVertexes, parentObject, image, name, mask = 
+        params.world, params.position, params.polygonVertexes, params.parentObject, params.image, params.name, params.mask
         self.world = world
         if not parentObject then
             self.body = love.physics.newBody(world, position.x, position.y, "dynamic")
             self.shape = love.physics.newPolygonShape(polygonVertexes)
             local texture = self.getTexture(image, {self.shape:getPoints()})
             self.fixture = love.physics.newFixture(self.body, self.shape, 4)
-            self.fixture:setMask( 3 )
+            self.fixture:setMask( mask or {3} )
             self.fixture:setCategory( 2 )
             self.fixture:setUserData({
                 name = name or "BlockShape",
@@ -31,7 +32,7 @@ local Polygon = Class{
                 image = image,
                 texture = texture,
             })
-            self.fixture:setMask( 3 )
+            self.fixture:setMask( mask or {3} )
             self.fixture:setCategory( 2 )
         end
     end,
@@ -87,8 +88,8 @@ function Polygon.splitObject(state, body, startPos, endPos)
             local lrx2, lry2 = body:getLocalPoint( r1HitX2, r1HitY2 )
             local vertex1, vertex2 = Polygon.divideOnePolygon(fixture:getShape(), math.floor(lrx1), math.floor(lry1), math.floor(lrx2), math.floor(lry2))
 
-            vardump(Polygon.checkVertexesAndCreatePolygon(state, vertex1, body, fixture))
-            vardump(Polygon.checkVertexesAndCreatePolygon(state, vertex2, body, fixture))
+            Polygon.checkVertexesAndCreatePolygon(state, vertex1, body, fixture)
+            Polygon.checkVertexesAndCreatePolygon(state, vertex2, body, fixture)
 
             fixture:destroy()
         end

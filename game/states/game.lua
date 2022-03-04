@@ -32,6 +32,7 @@ function state:enter(prev_state, args)
     self.rayCastPoints = {}
     self.touchPoints = {}
     self.brokenObjects = {}
+    self.pillarsToChange = {}
 
     self.pointForBuild = config.money
     self.ui = require "game.ui"(self)
@@ -63,7 +64,7 @@ function state:createNewGroundpolygon(world, numberOfVertexes)
         fixture:setUserData({
             name = "Ground",
         })
-        fixture:setMask( 1, 3 )
+        fixture:setMask( 1, 3, 4 )
         fixture:setCategory( 1 )
         love.physics.newMouseJoint( body, x, love.graphics.getHeight() - 100 )
         x, y = x2, y2
@@ -99,7 +100,7 @@ function state:mousepressed(x, y)
         self.creatingBody.body:setFixedRotation( false )
         for _, fix in pairs(self.creatingBody.body:getFixtures()) do
             fix:setCategory(2)  
-            fix:setMask(3) 
+            fix:setMask(3)
         end   
         self.joint:destroy()
         self.joint = nil
@@ -159,6 +160,30 @@ function state:update(dt)
             local x, y = love.mouse.getPosition()
             self.joint:setTarget(x + cx, y + cy)
         end
+
+        for ind, obj in pairs(self.world:getBodies()) do
+            for _, fixture in pairs(obj:getFixtures()) do
+                local group = fixture:getCategory( )
+                if fixture:getUserData().name == 'Pillar' and group ~= 4 and fixture:getUserData().ready  then
+                    local data = fixture:getUserData()
+                    data.name = 'BlockShape'
+                    fixture:setUserData(data)
+                elseif fixture:getUserData().name == 'Pillar' and group ~= 3 and not fixture:getUserData().ready then
+                    local data = fixture:getUserData()
+                    data.ready = true
+                    fixture:setUserData(data)
+                end
+            end
+        end
+
+        for _, obj in pairs(self.pillarsToChange) do
+            for _, fixture in pairs(obj.pillar:getFixtures()) do
+                fixture:setCategory(4)  
+                fixture:setMask(1, 3)
+            end
+            love.physics.newWeldJoint( obj.pillar, obj.ground, obj.pos.x, obj.pos.y )
+        end
+
     end
 end
 
@@ -197,6 +222,12 @@ function state:draw()
 end
 
 function beginContact(a, b, coll)
+    local aName = a:getUserData().name
+    local bName = b:getUserData().name
+    if (aName == 'Pillar' or bName == 'Pillar') and (aName == 'Ground' or bName == 'Ground') then
+        local pillar, ground = aName == 'Pillar' and a or b, aName == 'Ground' and a or b
+        table.insert(state.pillarsToChange, {pillar = pillar:getBody(), ground = ground:getBody(), pos = Vector(coll:getPositions())}) 
+    end
 end
 
 function endContact(a, b, coll)
@@ -220,20 +251,21 @@ function postSolve(a, b, coll, normalimpulse, tangentimpulse)
     end
 
     if normalimpulse > 750 and not(aName == 'Ball' or bName == 'Ball') then
-        if string.sub(aName,1, -5) == 'Chelovechek' or string.sub(bName,1, -5) == 'Chelovechek' then
-            Chelovechek.destroyPart(string.sub(aName,1, -5) == 'Chelovechek' and a or b, state)
-        else
-            local x1, y1,x2, y2 = coll:getPositions()
-            local nx, ny = coll:getNormal( )
-            table.insert(state.touchPoints, Vector(x1, y1)) 
-            table.insert(state.touchPoints, Vector(x2, y2))
-            if aName ~= 'Ground' then
-                table.insert(state.brokenObjects, {object = a, position = Vector(x1, y1), normal = Vector( nx, ny )}) 
-            end
-            if bName ~= 'Ground' then
-                table.insert(state.brokenObjects, {object = b, position = Vector(x2, y2), normal = Vector( nx, ny )}) 
-            end
+        local x1, y1,x2, y2 = coll:getPositions()
+        local nx, ny = coll:getNormal( )
+        -- table.insert(state.touchPoints, Vector(x1, y1)) 
+        -- table.insert(state.touchPoints, Vector(x2, y2))
+
+        if aName ~= 'Ground' or (aName == 'Pillar' and a:getCategory( ) ~= 4 ) then
+            table.insert(state.brokenObjects, {object = a, position = Vector(x1, y1), normal = Vector( nx, ny )}) 
         end
+        if bName ~= 'Ground' or (bName == 'Pillar' and b:getCategory( ) ~= 4 ) then
+            table.insert(state.brokenObjects, {object = b, position = Vector(x2, y2), normal = Vector( nx, ny )}) 
+        end
+    end
+
+    if normalimpulse > 500 and (string.sub(aName,1, -5) == 'Chelovechek' or string.sub(bName,1, -5) == 'Chelovechek') then
+        Chelovechek.destroyPart(string.sub(aName,1, -5) == 'Chelovechek' and a or b, state)
     end
 end
 

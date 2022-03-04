@@ -44,6 +44,7 @@ return function(state)
 		polygonVertexes = {0, 0, 48, 0, 48, 146, 0, 146},
 		cost = 100, size = {width = love.graphics.getWidth()*0.2, heigth = love.graphics.getHeight()*0.1},
         image = "column-block",
+        polygonName = 'Pillar'
     })
 
 
