@@ -11,6 +11,7 @@ local Polygon = Class{
             self.fixture = love.physics.newFixture(self.body, self.shape, 4)
             self.fixture:setMask( mask or {3} )
             self.fixture:setCategory( 2 )
+            self.fixture:setFriction(0.6)
             self.fixture:setUserData({
                 name = name or "BlockShape",
                 image = image,
@@ -27,6 +28,7 @@ local Polygon = Class{
             self.shape = love.physics.newPolygonShape(polygonVertexes)
             local texture = self.getTexture(image, {self.shape:getPoints()})
             self.fixture = love.physics.newFixture(self.body, self.shape, 4)
+            self.fixture:setFriction(0.6)
             self.fixture:setUserData({
                 name = name or "BlockShape",
                 image = image,

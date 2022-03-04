@@ -11,6 +11,7 @@ local Polygon = Class{
         local texture = PolygonShape.getTexture(image, {self.shape:getPoints()})
         self.fixture = love.physics.newFixture(self.body, self.shape, 5) -- A higher density gives it more mass.
 
+        self.fixture:setFriction(0.6)
         self.fixture:setCategory(3)
         self.fixture:setUserData({
             name = name or "BlockShape",
