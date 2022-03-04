@@ -25,9 +25,9 @@ local Polygon = Class{
 
 function Polygon:keypressed(key)
     if key == 'e' then
-        self.body:setAngle(self.body:getAngle( ) + 1*math.pi/180)
+        self.body:setAngle(self.body:getAngle( ) + 15*math.pi/180)
     elseif key == 'q' then
-        self.body:setAngle(self.body:getAngle( ) - 1*math.pi/180)
+        self.body:setAngle(self.body:getAngle( ) - 15*math.pi/180)
     end
 end
 

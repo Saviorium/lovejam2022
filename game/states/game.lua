@@ -27,7 +27,7 @@ function state:enter(prev_state, args)
 
     self.objects = objects
 
-    love.graphics.setBackgroundColor(0.41, 0.53, 0.97) --set the background color to a nice blue
+    love.graphics.setBackgroundColor(config.colors.blue) --set the background color to a nice blue
 
     self.rayCastPoints = {}
     self.touchPoints = {}
@@ -183,8 +183,8 @@ function state:draw()
             elseif shapeName == 'Ball' then
                 love.graphics.setColor(0.76, 0.18, 0.05) --set the drawing color to red for the ball
                 love.graphics.circle("fill", obj:getX(), obj:getY(), fixture:getShape():getRadius())
-            elseif fixture:getShape():getPoints() then
-                love.graphics.setColor(0.20, 0.20, 0.20) -- set the drawing color to grey for the blocks
+            elseif shapeName == 'Ground' then
+                love.graphics.setColor(config.colors.green)
                 love.graphics.polygon("fill", obj:getWorldPoints(fixture:getShape():getPoints()))
             end
         end
