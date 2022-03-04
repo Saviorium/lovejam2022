@@ -285,7 +285,7 @@ function postSolve(a, b, coll, normalimpulse, tangentimpulse)
         end
     end
 
-    if normalimpulse > 750 and not(aName == 'Ball' or bName == 'Ball') then
+    if normalimpulse > 1000 and not(aName == 'Ball' or bName == 'Ball') then
         local x1, y1,x2, y2 = coll:getPositions()
         local nx, ny = coll:getNormal( )
         -- table.insert(state.touchPoints, Vector(x1, y1))

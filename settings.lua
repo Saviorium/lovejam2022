@@ -12,8 +12,8 @@ config = {
 }
 
 Debug = {
-    showFps = 1,
-    mousePos = 1,
+    showFps = 0,
+    mousePos = 0,
     drawUiDebug = false,
     PrintAnimationEvents = false,
 }

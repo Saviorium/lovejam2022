@@ -20,7 +20,7 @@ return function(state)
      })
 
     NewShapeButton({Ui = Ui, name = 'Block',
-        LabelText = 'Блок',
+        LabelText = 'Block',
         position = {up = love.graphics.getHeight()*0.1, left = 0},
         state = state,
         polygonVertexes = {0, 0, 68, 0, 68, 36, 0, 36},
@@ -30,7 +30,7 @@ return function(state)
     })
 
     NewShapeButton({Ui = Ui, name = 'Triangle',
-        LabelText = 'Треугольник',
+        LabelText = 'Triangle',
         position = {up = love.graphics.getHeight()*0.1, left = love.graphics.getWidth()*0.2},
         state = state,
         polygonVertexes = {101, 0, 202, 54, 0, 54},
@@ -39,7 +39,7 @@ return function(state)
     })
 
     NewShapeButton({Ui = Ui, name = 'Column',
-        LabelText = 'Колонна',
+        LabelText = 'Pillar',
         position = {up = love.graphics.getHeight()*0.1, left = love.graphics.getWidth()*0.6},
         state = state,
         polygonVertexes = {0, 0, 48, 0, 48, 146, 0, 146},
@@ -82,7 +82,7 @@ return function(state)
             align = "left",
             verticalAlign = "center",
             tag =  "Chelovechek-button-label",
-            text = 'Человечек',
+            text = 'Player',
             font = fontsCache.thin(),
             width = NewShapeButton.width * 0.8,
             outline = 1,
