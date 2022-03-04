@@ -170,6 +170,17 @@ function state:update(dt)
                 self.timer = 0
                 self.pointForBuild = self.pointForBuild + config.moneyPerRound
                 self.shakeRound = self.shakeRound + 1
+
+                self.chelovechekDestroyed = false
+                self.chelovechekCreated = false
+
+                for ind, obj in pairs(self.world:getBodies()) do
+                    for _, fixture in pairs(obj:getFixtures()) do
+                        if string.sub(fixture:getUserData().name, 1, -5) == 'Chelovechek' then
+                            fixture:destroy()
+                        end
+                    end
+                end
                 if self.shakeRound > config.rounds then
                     self:endGame(true, self:getFinalScore())
                 end
