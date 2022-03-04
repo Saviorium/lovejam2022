@@ -11,8 +11,8 @@ StateManager = require "lib.hump.gamestate"
 AssetManager = require "engine.utils.asset_manager"
 AssetManager:load("data")
 
--- local SoundData = require "data.sound.sound_data"
--- SoundManager = require "engine.sound.sound_manager" (SoundData)
+local SoundData = require "data.sound.sound_data"
+SoundManager = require "engine.sound.sound_manager" (SoundData)
 
 local MusicData = require "data.music.music_data"
 MusicPlayer = require "engine.sound.music_player" (MusicData)
