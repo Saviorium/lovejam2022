@@ -36,9 +36,10 @@ function state:enter(prev_state, args)
     self.pointForBuild = config.money
     self.ui = require "game.ui"(self)
     self.timer = 0
-    self.shakeRound = true
 
     MusicPlayer:play("greece")
+    self.shakeRoundDuration = 30
+    self.shakeRound = false
 end
 
 function state:createNewGroundpolygon(world, numberOfVertexes)
@@ -132,15 +133,23 @@ end
 function state:update(dt)
     if not self.chelovechekDestroyed then
         self.world:update(dt) --this puts the world into motion
-        self.ui:update(dt)
+        if not self.shakeRound then
+            self.ui:update(dt)
+        end
 
         self:destroyObjects()
 
-        local rand = love.math.random(4)
-        self.timer = self.timer + dt
-        
         if self.shakeRound then
+
+            local rand = love.math.random(4)
+            self.timer = self.timer + dt
+
             self:shakeGround( 1050000, 4 * math.sin(self.timer) * self.timer )
+
+            if self.timer > self.shakeRoundDuration then
+                self.timer = 0
+                self.shakeRound = false
+            end
         end
 
         self:brakeAllThings()
@@ -180,8 +189,11 @@ function state:draw()
             end
         end
     end
-    love.graphics.setColor(0.76, 0.18, 0.05)
-    self.ui:draw()
+
+    if not self.shakeRound then
+        self.ui:draw()
+    end
+    -- love.graphics.setColor(0.76, 0.18, 0.05)
 end
 
 function beginContact(a, b, coll)

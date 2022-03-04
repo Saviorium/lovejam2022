@@ -87,24 +87,43 @@ return function(state)
         },
         Label
     )
-    -- local boxImage = Ui:registerNewObject(
-    --     "Score-image",
-    --     {
-    --         align = "up",
-    --     },
-    --     {
-    --         align = "center",
-    --         tag = "Score-image",
-    --         width = love.graphics.getWidth()*0.25,
-    --         height = love.graphics.getHeight()*0.1,
-    --         nineSliceSprite = NineSliceSprite(images.box, 18),
-    --         nineSliceSprite = NineSliceSprite(images.buttonFrameConfirm, 21),
-    --         color = colors.consoleFrame,
-    --         background = images.bgUi
-    --     },
-    --     NineSliceUiImage
-    -- )
-	local label = Ui:registerNewObject(
+
+	local NewShapeButton = Ui:registerNewObject(
+	    'Start-button',
+	    {up = love.graphics.getHeight()*0.15, left = love.graphics.getWidth()*0.45},
+	    {
+	        tag = 'Chelovechek-button',
+	        callback = function(btn, params)
+	        	state.shakeRound = true
+	        end,
+	        width = love.graphics.getWidth()*0.1,
+	        height = love.graphics.getHeight()*0.1,
+	        nineSliceImagePrefix = "box-button-dithered",
+	        nineSliceBorder = Vector(10, 38),
+	    },
+	    NineSliceButton
+	    )
+
+	local Startlabel = NewShapeButton:registerNewObject(
+        "Start-button-label",
+        {
+            align = "center",
+            left = NewShapeButton.width * 0.1,
+        },
+        {
+            align = "left",
+            verticalAlign = "center",
+            tag =  "Start-button-label",
+            text = 'Start',
+            font = fontsCache.thin(),
+            width = NewShapeButton.width * 0.8,
+            outline = 1,
+        },
+        Label
+    )
+
+
+	local Scorelabel = Ui:registerNewObject(
 	        "Score-image",
 	        {
 	            align = "up",
