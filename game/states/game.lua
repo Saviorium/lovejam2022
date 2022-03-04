@@ -121,8 +121,8 @@ end
 function state:mousereleased(x, y)
     self.endMousePos = Vector(x, y)
 
-    if self.startMousePos and self.endMousePos then
-        for _, body in pairs(self.world:getBodies()) do 
+    if config.debugSlice and self.startMousePos and self.endMousePos then
+        for _, body in pairs(self.world:getBodies()) do
             Polygon.splitObject(self, body, self.startMousePos, self.endMousePos)
         end
     end
@@ -310,7 +310,7 @@ function postSolve(a, b, coll, normalimpulse, tangentimpulse)
         end
     end
 
-    if normalimpulse > 250 and (string.sub(aName,1, -5) == 'Chelovechek' or string.sub(bName,1, -5) == 'Chelovechek') then
+    if normalimpulse > 500 and (string.sub(aName,1, -5) == 'Chelovechek' or string.sub(bName,1, -5) == 'Chelovechek') then
         Chelovechek.destroyPart(string.sub(aName,1, -5) == 'Chelovechek' and a or b, state)
     end
 end
