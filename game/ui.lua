@@ -58,8 +58,8 @@ return function(state)
 	        	if not state.chelovechekCreated then
 		            state.joint = nil
 		            local x, y = love.mouse.getPosition()
-		            state.creatingBody = Chelovechek({world = state.world, 
-		            	position = {x = x, y = y}, 
+		            state.creatingBody = Chelovechek({world = state.world,
+		            	position = {x = x, y = y},
 		            	state = state})
 		            state.chelovechekCreated = true
 		        end
@@ -94,7 +94,7 @@ return function(state)
 	    'Start-button',
 	    {up = love.graphics.getHeight()*0.15, left = love.graphics.getWidth()*0.45},
 	    {
-	        tag = 'Chelovechek-button',
+	        tag = 'Start-button',
 	        callback = function(btn, params)
 	        	state.shaking = true
 				SoundManager:play("earthquake")

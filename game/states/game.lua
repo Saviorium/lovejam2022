@@ -36,6 +36,12 @@ function state:enter(prev_state, args)
 
     self.pointForBuild = config.money
     self.ui = require "game.ui"(self)
+
+    self.endGameUi = require "game.end_game_ui"({text = {"hue", "hue"}})
+    self.gameOver = false
+    self.chelovechekDestroyed = false
+    self.chelovechekCreated = false
+
     self.timer = 0
 
     MusicPlayer:play("greece")
@@ -97,12 +103,15 @@ function state:mousepressed(x, y)
     self.endMousePos = nil
     self.rayCastPoints = {}
     self.ui:mousepressed(x, y)
+    if self.gameOver then
+        self.endGameUi:mousepressed(x, y)
+    end
     if self.creatingBody then
         self.creatingBody.body:setFixedRotation( false )
         for _, fix in pairs(self.creatingBody.body:getFixtures()) do
-            fix:setCategory(2)  
+            fix:setCategory(2)
             fix:setMask(3)
-        end   
+        end
         self.joint:destroy()
         self.joint = nil
         self.creatingBody = nil
@@ -118,6 +127,9 @@ function state:mousereleased(x, y)
         end
     end
     self.ui:mousereleased(x, y)
+    if self.gameOver then
+        self.endGameUi:mousereleased(x, y)
+    end
 end
 
 function state:createPolygonShapeFromAnotherObject(body, shape, vertexes)
@@ -127,7 +139,10 @@ end
 
 function state:keypressed(key)
     self.ui:keypressed(key)
-     if self.creatingBody then
+    if self.gameOver then
+        self.endGameUi:keypressed(key)
+    end
+    if self.creatingBody then
         self.creatingBody:keypressed(key)
     end
 end
@@ -137,6 +152,8 @@ function state:update(dt)
         self.world:update(dt) --this puts the world into motion
         if not self.shaking then
             self.ui:update(dt)
+        end
+        if self.gameOver then
         end
 
         self:destroyObjects()
@@ -151,6 +168,9 @@ function state:update(dt)
             if self.timer > self.shakeRoundDuration then
                 self.timer = 0
                 self.shakeRound = self.shakeRound + 1
+                if self.shakeRound >= config.rounds then
+                    self:endGame(true, self:getFinalScore())
+                end
                 self.shaking = false
             end
         end
@@ -180,12 +200,17 @@ function state:update(dt)
 
         for _, obj in pairs(self.pillarsToChange) do
             for _, fixture in pairs(obj.pillar:getFixtures()) do
-                fixture:setCategory(4)  
+                fixture:setCategory(4)
                 fixture:setMask(1, 3)
             end
             love.physics.newWeldJoint( obj.pillar, obj.ground, obj.pos.x, obj.pos.y )
         end
-        -- print(self:getFinalScore())
+    else
+        if not self.gameOver then
+            self:endGame(false, self:getFinalScore())
+        else
+            self.endGameUi:update(dt)
+        end
     end
 end
 
@@ -222,6 +247,9 @@ function state:draw()
     -- end
     if not self.shaking then
         self.ui:draw()
+    end
+    if self.gameOver then
+        self.endGameUi:draw()
     end
     -- love.graphics.setColor(0.76, 0.18, 0.05)
 end
@@ -317,6 +345,24 @@ function state:shakeGround( shakeForce, shakeSeed, shakeRound )
             end
         end
     end
+end
+
+function state:endGame(isWin, score)
+    local text
+    if isWin then
+        text = {
+            "Congratulations!",
+            "You survived!",
+            string.format("Final height: %d daktylos", score),
+        }
+    else
+        text = {
+            "Game over",
+            string.format("Final height: %d daktylos", score),
+        }
+    end
+    self.endGameUi = require "game.end_game_ui"({text = text})
+    self.gameOver = true
 end
 
 function state:getFinalScore()
