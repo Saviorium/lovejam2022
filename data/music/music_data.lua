@@ -1,8 +1,8 @@
 local musicData
 
 musicData = {
-    game1 = {
-        fileName = "game-music",
+    greece = {
+        fileName = "greece",
         loop = true,
         loopPoint = 0,
         volume = 0.2,

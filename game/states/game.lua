@@ -37,6 +37,8 @@ function state:enter(prev_state, args)
     self.ui = require "game.ui"(self)
     self.timer = 0
     self.shakeRound = true
+
+    MusicPlayer:play("greece")
 end
 
 function state:createNewGroundpolygon(world, numberOfVertexes)

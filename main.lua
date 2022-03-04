@@ -14,8 +14,8 @@ AssetManager:load("data")
 -- local SoundData = require "data.sound.sound_data"
 -- SoundManager = require "engine.sound.sound_manager" (SoundData)
 
--- local MusicData = require "data.music.music_data"
--- MusicPlayer = require "engine.sound.music_player" (MusicData)
+local MusicData = require "data.music.music_data"
+MusicPlayer = require "engine.sound.music_player" (MusicData)
 
 fonts = require "data.fonts.fonts"
 
