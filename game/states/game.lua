@@ -185,7 +185,7 @@ function state:update(dt)
             end
             love.physics.newWeldJoint( obj.pillar, obj.ground, obj.pos.x, obj.pos.y )
         end
-
+        -- print(self:getFinalScore())
     end
 end
 
@@ -217,6 +217,9 @@ function state:draw()
         end
     end
 
+    -- for _, point in pairs(self.touchPoints) do
+    --     love.graphics.circle('fill', point.x, point.y, 4)
+    -- end
     if not self.shaking then
         self.ui:draw()
     end
@@ -314,6 +317,32 @@ function state:shakeGround( shakeForce, shakeSeed, shakeRound )
             end
         end
     end
+end
+
+function state:getFinalScore()
+    local cx, cy = nil, nil
+    for ind, obj in pairs(self.world:getBodies()) do
+        for _, fixture in pairs(obj:getFixtures()) do
+            if string.sub(fixture:getUserData().name, 1, -5) == 'Chelovechek' then
+                cx, cy = obj:getWorldCenter( )
+            end
+        end
+    end
+    if cx and cy then
+        for ind, obj in pairs(self.world:getBodies()) do
+            for _, fixture in pairs(obj:getFixtures()) do
+                if fixture:getUserData().name == 'Ground' then
+                    local x1, y1, f1 = fixture:rayCast(cx, cy, cx, cy + 1000, 1)
+                    if f1 then
+                        local r1HitX1 = cx + (cx - cx) * f1
+                        local r1HitY1 = cy + ((cy + 1000) - cy) * f1 
+                        return Vector(cx - r1HitX1, cy - r1HitY1):len()
+                    end
+                end
+            end
+        end
+    end
+    return 0
 end
 
 return state
