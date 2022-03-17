@@ -7,27 +7,23 @@ local destroyQueue = {}
 
 
 function state:enter(prev_state, args)
-    -- b2Vec2 gravity(0.0f, -10.0f);
+
     love.physics.setMeter(64)
     local world = love.physics.newWorld(0, 9.81*64, true)
     self.world = world
     --These callback function names can be almost any you want:
     world:setCallbacks(beginContact, endContact, preSolve, postSolve)
 
-    text       = ""   -- we'll use this to put info text on the screen later
-    persisting = 0    -- we'll use this to store the state of repeated callback calls
+    text       = ""
+    persisting = 0
 
     local objects = {}
     local width, height = love.graphics.getWidth(), love.graphics.getHeight()
     objects.ground = {}
-    -- objects.ground.body = love.physics.newBody(world, 0, height + 50, 'dynamic')
-    -- objects.ground.body:setFixedRotation( true )
     self:createNewGroundpolygon(world, 75)
-    -- love.physics.newMouseJoint( objects.ground.body, width/2, height - 100 )
-
     self.objects = objects
 
-    love.graphics.setBackgroundColor(config.colors.blue) --set the background color to a nice blue
+    love.graphics.setBackgroundColor(config.colors.blue)
 
     self.rayCastPoints = {}
     self.touchPoints = {}
@@ -58,7 +54,7 @@ function state:createNewGroundpolygon(world, numberOfVertexes)
     local iterX = (love.graphics.getWidth()-x)/numberOfVertexes
 
     for i = 1, numberOfVertexes do
-        local body = love.physics.newBody(world, 0, love.graphics.getHeight() - 50, 'dynamic')
+        local body = love.physics.newBody(world, 0, love.graphics.getHeight() - 50, 'kinematic')
         body:setFixedRotation( true )
 
         -- local iterY = self:coutIterWithTrigonometry(x, y)
@@ -73,7 +69,6 @@ function state:createNewGroundpolygon(world, numberOfVertexes)
         })
         fixture:setMask( 1, 3, 4 )
         fixture:setCategory( 1 )
-        love.physics.newMouseJoint( body, x, love.graphics.getHeight() - 100 )
         x, y = x2, y2
     end
 end
@@ -163,11 +158,16 @@ function state:update(dt)
 
             local rand = love.math.random(4)
             self.timer = self.timer + dt
-
-            self:shakeGround( 1100000, 4 * math.sin(self.timer) * self.timer, self.shakeRound )
+            if not self.random then
+                self.random = (love.math.random(8)-4)
+            end
+            self:shakeGround( 0, self.random  * math.sin(self.timer) 
+                * self.timer , self.shakeRound )
 
             if self.timer > self.shakeRoundDuration then
                 self.timer = 0
+                self:shakeGround( 0, 0, 0 )
+                self.random = nil
                 self.pointForBuild = self.pointForBuild + config.moneyPerRound
                 self.shakeRound = self.shakeRound + 1
 
@@ -298,18 +298,16 @@ function postSolve(a, b, coll, normalimpulse, tangentimpulse)
 
     if normalimpulse > 1000 and not(aName == 'Ball' or bName == 'Ball') then
         local x1, y1,x2, y2 = coll:getPositions()
-        local nx, ny = coll:getNormal( )
-        -- table.insert(state.touchPoints, Vector(x1, y1))
-        -- table.insert(state.touchPoints, Vector(x2, y2))
+        local nx, ny = coll:getNormal()
 
-        if aName ~= 'Ground' and not  (aName == 'Pillar' and a:getCategory( ) ~= 4 ) then
+        if aName ~= 'Ground' and not  (aName == 'Pillar' and a:getCategory() ~= 4 ) then
             table.insert(state.brokenObjects, {object = a, position = Vector(x1, y1), normal = Vector( nx, ny )})
         end
-        if bName ~= 'Ground' and not (bName == 'Pillar' and b:getCategory( ) ~= 4 ) then
+        if bName ~= 'Ground' and not (bName == 'Pillar' and b:getCategory() ~= 4 ) then
             table.insert(state.brokenObjects, {object = b, position = Vector(x2, y2), normal = Vector( nx, ny )})
         end
     end
-
+    
     if normalimpulse > 500 and (string.sub(aName,1, -5) == 'Chelovechek' or string.sub(bName,1, -5) == 'Chelovechek') then
         Chelovechek.destroyPart(string.sub(aName,1, -5) == 'Chelovechek' and a or b, state)
     end
@@ -349,15 +347,24 @@ function state:destroyObjects()
 end
 
 function state:shakeGround( shakeForce, shakeSeed, shakeRound )
-
     for ind, obj in pairs(self.world:getBodies()) do
         for _, fixture in pairs(obj:getFixtures()) do
             if fixture:getUserData().name == 'Ground' then
                 local x, y, mass, inertia = fixture:getMassData( )
-                obj:applyForce( 0, -(shakeForce * (1 + 1 * (self.shakeRound - 1)) ) * math.sin(  shakeSeed * (shakeRound > 1 and x or 1) ))
+                local gx, gy = obj:getWorldCenter()
+
+                local shakeIntencity = shakeSeed * (shakeRound > 0 and x/350 or 1) /100
+                local shakeWidthMult = 25
+                local shakeWidth = (1 + 1 * (self.shakeRound - 1)) * shakeWidthMult
+
+                obj:setLinearVelocity(0, -(shakeWidth * shakeIntencity * math.cos(  shakeIntencity * 180 / math.pi )))
+                if x > 1100 and x < 1150 then
+                    print(x, -(shakeWidth * shakeIntencity * math.cos(  shakeIntencity * 180 / math.pi )))
+                end
             end
         end
     end
+    print()
 end
 
 function state:endGame(isWin, score)
@@ -382,7 +389,7 @@ function state:getFinalScore()
     local cx, cy = nil, nil
     for ind, obj in pairs(self.world:getBodies()) do
         for _, fixture in pairs(obj:getFixtures()) do
-            if string.sub(fixture:getUserData().name, 1, -5) == 'Chelovechek' then
+            if string.sub( fixture:getUserData().name, 1, -5 ) == 'Chelovechek' then
                 cx, cy = obj:getWorldCenter( )
             end
         end
