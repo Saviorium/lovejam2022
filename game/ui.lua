@@ -42,7 +42,7 @@ return function(state)
         LabelText = 'Pillar',
         position = {up = love.graphics.getHeight()*0.1, left = love.graphics.getWidth()*0.6},
         state = state,
-        polygonVertexes = {0, 0, 48, 0, 48, 146, 0, 146},
+        polygonVertexes = {8, 0, 40, 0, 40, 146, 8, 146},
         cost = 100, size = {width = love.graphics.getWidth()*0.2, heigth = love.graphics.getHeight()*0.1},
         image = "column-block",
         polygonName = 'Pillar'

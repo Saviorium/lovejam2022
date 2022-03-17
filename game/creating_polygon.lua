@@ -8,7 +8,7 @@ local Polygon = Class{
         self.body:setFixedRotation( true )
 
         self.shape = love.physics.newPolygonShape(polygonVertexes)
-        local texture = PolygonShape.getTexture(image, {self.shape:getPoints()})
+        local texture = PolygonShape.getTexture(image) -- ignore collider - full texture until it breaks
         self.fixture = love.physics.newFixture(self.body, self.shape, 5) -- A higher density gives it more mass.
 
         self.fixture:setFriction(0.6)

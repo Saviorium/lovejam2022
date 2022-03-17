@@ -1,6 +1,6 @@
 local Polygon = Class{
     init = function(self, params)
-        local world, position, polygonVertexes, parentObject, image, name, mask = 
+        local world, position, polygonVertexes, parentObject, image, name, mask =
         params.world, params.position, params.polygonVertexes, params.parentObject, params.image, params.name, params.mask
         self.world = world
         if not parentObject then
@@ -69,7 +69,11 @@ function Polygon.getTexture(image, polygon)
     texture:renderTo( function()
         local mode, alphamode = love.graphics.getBlendMode( )
         love.graphics.setColor(1,1,1,1)
-        love.graphics.polygon("fill", polygon)
+        if polygon then
+            love.graphics.polygon("fill", polygon)
+        else
+            love.graphics.rectangle("fill", 0, 0, image:getWidth(), image:getHeight())
+        end
         love.graphics.setBlendMode("multiply", "premultiplied")
         love.graphics.draw(image)
         love.graphics.setBlendMode(mode, alphamode)
