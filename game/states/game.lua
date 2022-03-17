@@ -218,23 +218,28 @@ function state:draw()
     -- love.graphics.polygon("fill", objects.ground.body:getWorldPoints(objects.ground.shape:getPoints())) -- draw a "filled in" polygon using the ground's coordinates
 
     for ind, obj in pairs(self.world:getBodies()) do
+        local bodyData = obj:getUserData()
+        if bodyData and bodyData.texture then
+            love.graphics.push()
+            love.graphics.setColor(1,1,1,1)
+            love.graphics.translate(obj:getX(), obj:getY())
+            love.graphics.rotate(obj:getAngle())
+            love.graphics.draw(bodyData.texture)
+            love.graphics.pop()
+        end
+
         for _, fixture in pairs(obj:getFixtures()) do
             local userData = fixture:getUserData()
             local shapeName = userData and userData.name or nil
 
-            local texture = userData and userData.texture or nil
-            if texture then
-                love.graphics.push()
-                love.graphics.setColor(1,1,1,1)
-                love.graphics.translate(obj:getX(), obj:getY())
-                love.graphics.rotate(obj:getAngle())
-                love.graphics.draw(texture)
-                love.graphics.pop()
-            elseif shapeName == 'Ball' then
+            if shapeName == 'Ball' then
                 love.graphics.setColor(0.76, 0.18, 0.05) --set the drawing color to red for the ball
                 love.graphics.circle("fill", obj:getX(), obj:getY(), fixture:getShape():getRadius())
             elseif shapeName == 'Ground' then
                 love.graphics.setColor(config.colors.green)
+                love.graphics.polygon("fill", obj:getWorldPoints(fixture:getShape():getPoints()))
+            elseif shapeName == 'BlockShape' and Debug and Debug.drawColliders then
+                love.graphics.setColor(0.76, 0.18, 0.05)
                 love.graphics.polygon("fill", obj:getWorldPoints(fixture:getShape():getPoints()))
             end
         end

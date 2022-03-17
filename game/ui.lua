@@ -23,7 +23,7 @@ return function(state)
         LabelText = 'Block',
         position = {up = love.graphics.getHeight()*0.1, left = 0},
         state = state,
-        polygonVertexes = {0, 0, 68, 0, 68, 36, 0, 36},
+        polygons = {0, 0, 68, 0, 68, 36, 0, 36},
         cost = 100, size = {width = love.graphics.getWidth()*0.2, heigth = love.graphics.getHeight()*0.1},
         image = "block-block",
         polygonName = 'Pillar'
@@ -33,7 +33,7 @@ return function(state)
         LabelText = 'Triangle',
         position = {up = love.graphics.getHeight()*0.1, left = love.graphics.getWidth()*0.2},
         state = state,
-        polygonVertexes = {101, 0, 202, 54, 0, 54},
+        polygons = {101, 0, 202, 54, 0, 54},
         cost = 100, size = {width = love.graphics.getWidth()*0.2, heigth = love.graphics.getHeight()*0.1},
         image = "triangle-block",
     })
@@ -42,7 +42,7 @@ return function(state)
         LabelText = 'Pillar',
         position = {up = love.graphics.getHeight()*0.1, left = love.graphics.getWidth()*0.6},
         state = state,
-        polygonVertexes = {8, 0, 40, 0, 40, 146, 8, 146},
+        polygons = {{0,4, 4,0, 44,0, 48,5, 48,14, 44,18, 4,18, 0,14}, {8,18, 40,18, 40,131, 8,131}, {5,131, 43,131, 45,146, 3,146}},
         cost = 100, size = {width = love.graphics.getWidth()*0.2, heigth = love.graphics.getHeight()*0.1},
         image = "column-block",
         polygonName = 'Pillar'
@@ -83,8 +83,8 @@ return function(state)
                 state.creatingBody = Chelovechek({world = state.world,
                     position = {x = x, y = y},
                     state = state})
-                state.chelovechekCreated = true     
-                labelError.hidden = true           
+                state.chelovechekCreated = true
+                labelError.hidden = true
             end,
             width = love.graphics.getWidth()*0.2,
             height = love.graphics.getHeight()*0.1,

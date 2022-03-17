@@ -2,21 +2,34 @@ local PolygonShape = require "game.polygon_shape"
 
 local Polygon = Class{
     init = function(self, params)
-        local world, position, polygonVertexes, state, image, name = params.world, params.position, params.polygonVertexes, params.state, params.image, params.name
+        local world, position, polygons, state, image, name = params.world, params.position, params.polygons, params.state, params.image, params.name
+
+        if type(polygons[1]) == "number" then
+            polygons = {polygons} -- assume only one polygon passed
+        end
 
         self.body = love.physics.newBody(world, position.x, position.y, "dynamic")
         self.body:setFixedRotation( true )
 
-        self.shape = love.physics.newPolygonShape(polygonVertexes)
-        local texture = PolygonShape.getTexture(image) -- ignore collider - full texture until it breaks
-        self.fixture = love.physics.newFixture(self.body, self.shape, 5) -- A higher density gives it more mass.
+        local parts = {}
+        for i, polygonVertices in ipairs(polygons) do
+            local part = {}
+            part.shape = love.physics.newPolygonShape(polygonVertices)
+            part.fixture = love.physics.newFixture(self.body, part.shape, 5) -- A higher density gives it more mass.
+            part.fixture:setCategory(3)
+            part.fixture:setFriction(0.6)
+            part.fixture:setUserData({
+                name = name or "BlockShape",
+                image = image,
+            })
+            parts[i] = part
+        end
+        self.parts = parts
 
-        self.fixture:setFriction(0.6)
-        self.fixture:setCategory(3)
-        self.fixture:setUserData({
-            name = name or "BlockShape",
-            image = image,
+        local texture = PolygonShape.getTexture(image, self.body)
+        self.body:setUserData({
             texture = texture,
+            image = image,
         })
 
         local cx, cy = self.body:getLocalCenter()

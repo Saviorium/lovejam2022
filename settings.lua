@@ -5,7 +5,7 @@ config = {
     moneyPerRound = 1000,
     rounds = 5,
     roundTime = 15,
-    debugSlice = false,
+    debugSlice = true,
     colors = {
         green = Utils.colorFromHex("5cba0a"),
         blue = Utils.colorFromHex("b1d8ff"),
@@ -17,4 +17,5 @@ Debug = {
     mousePos = 0,
     drawUiDebug = false,
     PrintAnimationEvents = false,
+    drawColliders = false,
 }

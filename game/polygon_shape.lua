@@ -1,21 +1,19 @@
 local Polygon = Class{
     init = function(self, params)
-        local world, position, polygonVertexes, parentObject, image, name, mask =
-        params.world, params.position, params.polygonVertexes, params.parentObject, params.image, params.name, params.mask
+        local world, position, polygons, parentObject, image, name, mask =
+        params.world, params.position, params.polygons, params.parentObject, params.image, params.name, params.mask
+        if type(polygons[1]) == "number" then
+            polygons = {polygons} -- assume only one polygon passed
+        end
         self.world = world
         if not parentObject then
             self.body = love.physics.newBody(world, position.x, position.y, "dynamic")
-            self.shape = love.physics.newPolygonShape(polygonVertexes)
-            local texture = self.getTexture(image, {self.shape:getPoints()})
-            self.fixture = love.physics.newFixture(self.body, self.shape, 4)
-            self.fixture:setMask( mask or {3} )
-            self.fixture:setCategory( 2 )
-            self.fixture:setFriction(0.6)
-            self.fixture:setUserData({
-                name = name or "BlockShape",
-                image = image,
-                texture = texture,
+            self.body:setUserData({
+                image = image
             })
+            self.parts = self.createParts(self.body, polygons, params)
+
+            self.addTexture(self.body)
         else
             local velocity = {}
             velocity.x, velocity.y = parentObject.body:getLinearVelocity()
@@ -24,21 +22,37 @@ local Polygon = Class{
             self.body:setAngle(parentObject.body:getAngle())
             self.body:setAngularVelocity(parentObject.body:getAngularVelocity())
             self.body:setLinearVelocity(velocity.x, velocity.y)
-            self.shape = love.physics.newPolygonShape(polygonVertexes)
-            local texture = self.getTexture(image, {self.shape:getPoints()})
-            self.fixture = love.physics.newFixture(self.body, self.shape, 4)
-            self.fixture:setFriction(0.6)
-            self.fixture:setUserData({
-                name = name or "BlockShape",
-                image = image,
-                texture = texture,
+            self.body:setUserData({
+                image = image
             })
-            -- mask = mask or parentObject.body:getFixtures()[1]:getCategory()
-            self.fixture:setMask( mask or {3} )
-            self.fixture:setCategory( parentObject.body:getFixtures()[1]:getCategory() )
+            self.parts = self.createParts(self.body, polygons, params)
+
+            self.addTexture(self.body)
         end
     end,
 }
+
+function Polygon.createParts(body, polygons, params)
+    local mask = params.mask or {3}
+    local name = params.name or "BlockShape"
+    local image = params.image
+
+    local parts = {}
+    for i, polygonVertices in ipairs(polygons) do
+        local part = {}
+        part.shape = love.physics.newPolygonShape(polygonVertices)
+        part.fixture = love.physics.newFixture(body, part.shape, 4)
+        part.fixture:setMask(mask)
+        part.fixture:setCategory(2)
+        part.fixture:setFriction(0.6)
+        part.fixture:setUserData({
+            name = name or "BlockShape",
+            image = image,
+        })
+        parts[i] = part
+    end
+    return parts
+end
 
 function Polygon.divideOnePolygon(objectShape, rx1, ry1, rx2, ry2)
     local poly1, poly2 = {Vector(rx1, ry1), Vector(rx2, ry2)}, {Vector(rx1, ry1), Vector(rx2, ry2)}
@@ -61,18 +75,35 @@ function Polygon.divideOnePolygon(objectShape, rx1, ry1, rx2, ry2)
     return Utils.vectorsToVerticies(poly1), Utils.vectorsToVerticies(poly2)
 end
 
-function Polygon.getTexture(image, polygon)
+function Polygon.addTexture(body)
+    local userData = body:getUserData() or {}
+    vardump(userData)
+    local texture = Polygon.getTexture(userData.image, body)
+    userData.texture = texture
+    body:setUserData(userData)
+end
+
+function Polygon.getTexture(image, body)
     if not image then
+        print("no image!")
         return
     end
     local texture = love.graphics.newCanvas(image:getWidth(), image:getHeight())
+    local polygons = {}
+    if body then
+        for _, fixture in ipairs(body:getFixtures()) do
+            table.insert(polygons, { fixture:getShape():getPoints() })
+        end
+    end
     texture:renderTo( function()
         local mode, alphamode = love.graphics.getBlendMode( )
         love.graphics.setColor(1,1,1,1)
-        if polygon then
-            love.graphics.polygon("fill", polygon)
-        else
+        if #polygons < 1 then
             love.graphics.rectangle("fill", 0, 0, image:getWidth(), image:getHeight())
+        else
+            for _, polygon in ipairs(polygons) do
+                love.graphics.polygon("fill", polygon)
+            end
         end
         love.graphics.setBlendMode("multiply", "premultiplied")
         love.graphics.draw(image)
@@ -82,6 +113,7 @@ function Polygon.getTexture(image, polygon)
 end
 
 function Polygon.splitObject(state, body, startPos, endPos)
+    local bodyChanged = false
     for _, fixture in pairs(body:getFixtures()) do
         local x1, y1, f1 = fixture:rayCast(startPos.x, startPos.y, endPos.x, endPos.y, 1)
         local x2, y2, f2 = fixture:rayCast(endPos.x, endPos.y, startPos.x, startPos.y, 1)
@@ -98,7 +130,15 @@ function Polygon.splitObject(state, body, startPos, endPos)
             Polygon.checkVertexesAndCreatePolygon(state, vertex2, body, fixture)
 
             fixture:destroy()
+            bodyChanged = true
         end
+    end
+    if bodyChanged then
+        if #body:getFixtures() < 1 then
+            body:destroy()
+            return
+        end
+        Polygon.addTexture(body)
     end
 end
 
@@ -139,7 +179,7 @@ function Polygon.checkVertexesAndCreatePolygon(state, vertex, body, fixture)
     resultVectors = Utils.vectorsToVerticies(resultVectors)
     if table.getn(resultVectors) > 4 and table.getn(resultVectors) <= 14 then -- and (math.abs(sum/2) > 1) and not (onOneLineX or onOneLineY) then
         local userData = fixture:getUserData()
-        return pcall(Polygon, { world = state.world, polygonVertexes = resultVectors, parentObject = {body = body, shape = fixture:getShape()}, image = userData.image, name = fixture:getUserData().name })
+        return pcall(Polygon, { world = state.world, polygons = resultVectors, parentObject = {body = body, shape = fixture:getShape()}, image = userData.image, name = fixture:getUserData().name })
     end
     return false
 end

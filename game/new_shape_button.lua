@@ -8,8 +8,8 @@ local fontsCache = {
 }
 
 return function( params )
-    local Ui, LabelText, position, state, polygonVertexes, name, polygonName, size, cost, image, postCallback = 
-    params.Ui, params.LabelText, params.position, params.state, params.polygonVertexes, params.name, params.polygonName, params.size, params.cost, params.image, params.postCallback
+    local Ui, LabelText, position, state, polygons, name, polygonName, size, cost, image, postCallback =
+    params.Ui, params.LabelText, params.position, params.state, params.polygons, params.name, params.polygonName, params.size, params.cost, params.image, params.postCallback
 
     local NewShapeButton = Ui:registerNewObject(
     name,
@@ -23,7 +23,7 @@ return function( params )
                 local x, y = love.mouse.getPosition()
                 state.creatingBody = CreatingPolygon({world = state.world,
                     position = {x = x, y = y},
-                    polygonVertexes = polygonVertexes,
+                    polygons = polygons,
                     state = state,
                     image = AssetManager:getImage(image),
                     name = polygonName,
