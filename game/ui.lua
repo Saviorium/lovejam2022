@@ -66,8 +66,8 @@ return function(state)
             end,
             width = love.graphics.getWidth()*0.2,
             height = love.graphics.getHeight()*0.1,
-            nineSliceImagePrefix = "box-button-dithered",
-            nineSliceBorder = Vector(10, 38),
+            nineSliceImagePrefix = "box-button-undithered",
+            nineSliceBorder = Vector(7, 7),
         },
         NineSliceButton
         )
@@ -103,8 +103,8 @@ return function(state)
             end,
             width = love.graphics.getWidth()*0.1,
             height = love.graphics.getHeight()*0.1,
-            nineSliceImagePrefix = "box-button-dithered",
-            nineSliceBorder = Vector(10, 38),
+            nineSliceImagePrefix = "box-button-undithered",
+            nineSliceBorder = Vector(7, 7),
         },
         NineSliceButton
         )

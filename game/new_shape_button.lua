@@ -32,8 +32,8 @@ return function( params )
         end,
         width = size.width or love.graphics.getHeight()*0.1,
         height = size.height or love.graphics.getHeight()*0.1,
-        nineSliceImagePrefix = "box-button-dithered",
-        nineSliceBorder = Vector(10, 38),
+        nineSliceImagePrefix = "box-button-undithered",
+        nineSliceBorder = Vector(7, 7),
     },
     NineSliceButton
     )

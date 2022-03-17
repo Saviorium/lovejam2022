@@ -50,8 +50,8 @@ local UI =
                 end,
                 width = buttonsWidth,
                 height = buttonsHeight,
-                nineSliceImagePrefix = "box-button-dithered",
-                nineSliceBorder = Vector(10, 36),
+                nineSliceImagePrefix = "box-button-undithered",
+                nineSliceBorder = Vector(7, 7),
             },
             NineSliceButton
         )
