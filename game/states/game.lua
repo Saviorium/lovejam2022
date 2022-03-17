@@ -155,6 +155,18 @@ function state:update(dt)
 
         if self.shaking then
             self:updateShakeGround(dt)
+        
+            for ind, obj in pairs(self.world:getBodies()) do
+                for _, fixture in pairs(obj:getFixtures()) do
+                    if string.sub(fixture:getUserData().name, 1, -5) == 'Chelovechek' then
+                        local x, y = obj:getWorldCenter()
+                        if x < 0  or x > love.graphics.getWidth() then
+                            self.chelovechekDestroyed = true
+                            fixture:destroy()
+                        end
+                    end
+                end
+            end
         end
 
         self:destroyObjects()
@@ -190,6 +202,7 @@ function state:update(dt)
             love.physics.newWeldJoint( obj.pillar, obj.ground, obj.pos.x, obj.pos.y )
         end
         self.pillarsToChange = {}
+
     else
         if not self.gameOver then
             self:endGame(false, self:getFinalScore())
@@ -379,10 +392,6 @@ function state:updateShakeGround(dt)
         self.pointForBuild = self.pointForBuild + config.moneyPerRound
         self.shakeRound = self.shakeRound + 1
 
-        self.chelovechekDestroyed = false
-        self.chelovechekCreated = false
-        self:destroyChelovechek()
-
         if self.shakeRound > config.rounds then
             self:endGame(true, self:getFinalScore())
         end
@@ -402,17 +411,16 @@ function state:shakeGround( shakeForce, shakeSeed, shakeRound )
                 local shakeWidth = (1 + 1 * (self.shakeRound - 1)) * shakeWidthMult
 
                 obj:setLinearVelocity(0, -(shakeWidth * shakeIntencity * math.cos(  shakeIntencity * 180 / math.pi )))
-                if x > 1100 and x < 1150 then
-                    print(x, -(shakeWidth * shakeIntencity * math.cos(  shakeIntencity * 180 / math.pi )))
-                end
+                -- if x > 1100 and x < 1150 then
+                --     -- print(x, -(shakeWidth * shakeIntencity * math.cos(  shakeIntencity * 180 / math.pi )))
+                -- end
             end
         end
     end
-    print()
+    -- print()
 end
 
 function state:destroyChelovechek()
-
     for ind, obj in pairs(self.world:getBodies()) do
         for _, fixture in pairs(obj:getFixtures()) do
             if string.sub(fixture:getUserData().name, 1, -5) == 'Chelovechek' then

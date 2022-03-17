@@ -48,6 +48,24 @@ return function(state)
         polygonName = 'Pillar'
     })
 
+    local labelError = Ui:registerNewObject(
+        "Start-button-label-error",
+        {
+            align = "up",
+            up = love.graphics.getHeight()*0.30,
+        },
+        {
+            align = "center",
+            verticalAlign = "center",
+            tag =  "Start-button-label-error",
+            text = 'First add a character',
+            font = fontsCache.thin(),
+            width = Ui.width * 0.8,
+            outline = 1,
+            hidden = true
+        },
+        Label
+    )
 
     local NewShapeButton = Ui:registerNewObject(
         'Chelovechek-button',
@@ -65,8 +83,8 @@ return function(state)
                 state.creatingBody = Chelovechek({world = state.world,
                     position = {x = x, y = y},
                     state = state})
-                state.chelovechekCreated = true
-                
+                state.chelovechekCreated = true     
+                labelError.hidden = true           
             end,
             width = love.graphics.getWidth()*0.2,
             height = love.graphics.getHeight()*0.1,
@@ -89,10 +107,11 @@ return function(state)
             text = 'Player',
             font = fontsCache.thin(),
             width = NewShapeButton.width * 0.8,
-            outline = 1,
+            outline = 1
         },
         Label
     )
+
 
     local NewShapeButton = Ui:registerNewObject(
         'Start-button',
@@ -103,6 +122,9 @@ return function(state)
                 if state.chelovechekCreated then
                     state.shaking = true
                     SoundManager:play("earthquake")
+                    labelError.hidden = true
+                else
+                    labelError.hidden = false
                 end
             end,
             width = love.graphics.getWidth()*0.1,
@@ -112,6 +134,7 @@ return function(state)
         },
         NineSliceButton
         )
+
 
     local Startlabel = NewShapeButton:registerNewObject(
         "Start-button-label",
