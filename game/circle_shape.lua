@@ -1,4 +1,3 @@
-
 local Circle = Class{
     init = function(self, params)
         local world, position, range, velocity = params.world, params.position, params.range, params.velocity
@@ -18,7 +17,7 @@ local Circle = Class{
     end,
 }
 
-function Circle.dublicateCircle(circle)
+function Circle.duplicateCircle(circle)
     local range = circle:getShape():getRadius()/1.2
     if range > 5 then
         local x, y = circle:getBody():getX(), circle:getBody():getY()

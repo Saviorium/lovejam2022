@@ -158,7 +158,7 @@ function state:update(dt)
         end
 
         self:destroyObjects()
-        self:brakeAllThings()
+        self:breakAllThings()
 
 
         if self.joint then
@@ -287,7 +287,7 @@ function postSolve(a, b, coll, normalimpulse, tangentimpulse)
     end
 end
 
-function state:brakeAllThings()
+function state:breakAllThings()
     for _, object in pairs(self.brokenObjects) do
         if not object.object:isDestroyed() then
             local x1, y1, f1 = nil, nil, nil
@@ -311,7 +311,7 @@ function state:destroyObjects()
     for ind, object in pairs(destroyQueue) do
         if not object:isDestroyed() then
             if object:getUserData().name == 'Ball' then
-                Circle.dublicateCircle(object)
+                Circle.duplicateCircle(object)
             else
                 object:destroy()
             end
@@ -354,7 +354,7 @@ function state:getFinalScore()
                     local x1, y1, f1 = fixture:rayCast(cx, cy, cx, cy + 1000, 1)
                     if f1 then
                         local r1HitX1 = cx + (cx - cx) * f1
-                        local r1HitY1 = cy + ((cy + 1000) - cy) * f1 
+                        local r1HitY1 = cy + ((cy + 1000) - cy) * f1
                         return Vector(cx - r1HitX1, cy - r1HitY1):len()
                     end
                 end

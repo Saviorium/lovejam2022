@@ -1,4 +1,3 @@
-
 local Polygon = Class{
     init = function(self, params)
         local world, position, polygonVertexes, parentObject, image, name, mask = 
