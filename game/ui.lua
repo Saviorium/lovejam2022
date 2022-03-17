@@ -55,14 +55,18 @@ return function(state)
         {
             tag = 'Chelovechek-button',
             callback = function(btn, params)
-                if not state.chelovechekCreated then
-                    state.joint = nil
-                    local x, y = love.mouse.getPosition()
-                    state.creatingBody = Chelovechek({world = state.world,
-                        position = {x = x, y = y},
-                        state = state})
-                    state.chelovechekCreated = true
+                if state.chelovechekCreated then
+                    state.chelovechekCreated = false
+                    state:destroyChelovechek()
                 end
+
+                state.joint = nil
+                local x, y = love.mouse.getPosition()
+                state.creatingBody = Chelovechek({world = state.world,
+                    position = {x = x, y = y},
+                    state = state})
+                state.chelovechekCreated = true
+                
             end,
             width = love.graphics.getWidth()*0.2,
             height = love.graphics.getHeight()*0.1,

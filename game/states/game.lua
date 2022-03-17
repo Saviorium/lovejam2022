@@ -148,47 +148,18 @@ function state:update(dt)
         if not self.shaking then
             self.ui:update(dt)
         end
+
         if self.gameOver then
             self.endGameUi:update(dt)
         end
 
-        self:destroyObjects()
-
         if self.shaking then
-
-            local rand = love.math.random(4)
-            self.timer = self.timer + dt
-            if not self.random then
-                self.random = (love.math.random(8)-4)
-            end
-            self:shakeGround( 0, self.random  * math.sin(self.timer) 
-                * self.timer , self.shakeRound )
-
-            if self.timer > self.shakeRoundDuration then
-                self.timer = 0
-                self:shakeGround( 0, 0, 0 )
-                self.random = nil
-                self.pointForBuild = self.pointForBuild + config.moneyPerRound
-                self.shakeRound = self.shakeRound + 1
-
-                self.chelovechekDestroyed = false
-                self.chelovechekCreated = false
-
-                for ind, obj in pairs(self.world:getBodies()) do
-                    for _, fixture in pairs(obj:getFixtures()) do
-                        if string.sub(fixture:getUserData().name, 1, -5) == 'Chelovechek' then
-                            fixture:destroy()
-                        end
-                    end
-                end
-                if self.shakeRound > config.rounds then
-                    self:endGame(true, self:getFinalScore())
-                end
-                self.shaking = false
-            end
+            self:updateShakeGround(dt)
         end
 
+        self:destroyObjects()
         self:brakeAllThings()
+
 
         if self.joint then
             local cx, cy = self.creatingBody.body:getLocalCenter()
@@ -218,6 +189,7 @@ function state:update(dt)
             end
             love.physics.newWeldJoint( obj.pillar, obj.ground, obj.pos.x, obj.pos.y )
         end
+        self.pillarsToChange = {}
     else
         if not self.gameOver then
             self:endGame(false, self:getFinalScore())
@@ -268,11 +240,13 @@ function state:draw()
 end
 
 function beginContact(a, b, coll)
-    local aName = a:getUserData().name
-    local bName = b:getUserData().name
-    if (aName == 'Pillar' or bName == 'Pillar') and (aName == 'Ground' or bName == 'Ground') then
-        local pillar, ground = aName == 'Pillar' and a or b, aName == 'Ground' and a or b
-        table.insert(state.pillarsToChange, {pillar = pillar:getBody(), ground = ground:getBody(), pos = Vector(coll:getPositions())}) 
+    if not state.shaking then
+        local aName = a:getUserData().name
+        local bName = b:getUserData().name
+        if (aName == 'Pillar' or bName == 'Pillar') and (aName == 'Ground' or bName == 'Ground') then
+            local pillar, ground = aName == 'Pillar' and a or b, aName == 'Ground' and a or b
+            table.insert(state.pillarsToChange, {pillar = pillar:getBody(), ground = ground:getBody(), pos = Vector(coll:getPositions())}) 
+        end
     end
 end
 
@@ -307,7 +281,7 @@ function postSolve(a, b, coll, normalimpulse, tangentimpulse)
             table.insert(state.brokenObjects, {object = b, position = Vector(x2, y2), normal = Vector( nx, ny )})
         end
     end
-    
+
     if normalimpulse > 500 and (string.sub(aName,1, -5) == 'Chelovechek' or string.sub(bName,1, -5) == 'Chelovechek') then
         Chelovechek.destroyPart(string.sub(aName,1, -5) == 'Chelovechek' and a or b, state)
     end
@@ -344,27 +318,6 @@ function state:destroyObjects()
         end
         destroyQueue[ind] = nil
     end
-end
-
-function state:shakeGround( shakeForce, shakeSeed, shakeRound )
-    for ind, obj in pairs(self.world:getBodies()) do
-        for _, fixture in pairs(obj:getFixtures()) do
-            if fixture:getUserData().name == 'Ground' then
-                local x, y, mass, inertia = fixture:getMassData( )
-                local gx, gy = obj:getWorldCenter()
-
-                local shakeIntencity = shakeSeed * (shakeRound > 0 and x/350 or 1) /100
-                local shakeWidthMult = 25
-                local shakeWidth = (1 + 1 * (self.shakeRound - 1)) * shakeWidthMult
-
-                obj:setLinearVelocity(0, -(shakeWidth * shakeIntencity * math.cos(  shakeIntencity * 180 / math.pi )))
-                if x > 1100 and x < 1150 then
-                    print(x, -(shakeWidth * shakeIntencity * math.cos(  shakeIntencity * 180 / math.pi )))
-                end
-            end
-        end
-    end
-    print()
 end
 
 function state:endGame(isWin, score)
@@ -409,6 +362,64 @@ function state:getFinalScore()
         end
     end
     return 0
+end
+
+function state:updateShakeGround(dt)
+    local rand = love.math.random(4)
+    self.timer = self.timer + dt
+    if not self.random then
+        self.random = (love.math.random(8)-4)
+    end
+    self:shakeGround( 0, self.random  * math.sin(self.timer) * self.timer , self.shakeRound )
+
+    if self.timer > self.shakeRoundDuration then
+        self.timer = 0
+        self:shakeGround( 0, 0, 0 )
+        self.random = nil
+        self.pointForBuild = self.pointForBuild + config.moneyPerRound
+        self.shakeRound = self.shakeRound + 1
+
+        self.chelovechekDestroyed = false
+        self.chelovechekCreated = false
+        self:destroyChelovechek()
+
+        if self.shakeRound > config.rounds then
+            self:endGame(true, self:getFinalScore())
+        end
+        self.shaking = false
+    end
+end
+
+function state:shakeGround( shakeForce, shakeSeed, shakeRound )
+    for ind, obj in pairs(self.world:getBodies()) do
+        for _, fixture in pairs(obj:getFixtures()) do
+            if fixture:getUserData().name == 'Ground' then
+                local x, y, mass, inertia = fixture:getMassData( )
+                local gx, gy = obj:getWorldCenter()
+
+                local shakeIntencity = shakeSeed * x / (200 + 50 * self.shakeRound) /200
+                local shakeWidthMult = 25
+                local shakeWidth = (1 + 1 * (self.shakeRound - 1)) * shakeWidthMult
+
+                obj:setLinearVelocity(0, -(shakeWidth * shakeIntencity * math.cos(  shakeIntencity * 180 / math.pi )))
+                if x > 1100 and x < 1150 then
+                    print(x, -(shakeWidth * shakeIntencity * math.cos(  shakeIntencity * 180 / math.pi )))
+                end
+            end
+        end
+    end
+    print()
+end
+
+function state:destroyChelovechek()
+
+    for ind, obj in pairs(self.world:getBodies()) do
+        for _, fixture in pairs(obj:getFixtures()) do
+            if string.sub(fixture:getUserData().name, 1, -5) == 'Chelovechek' then
+                fixture:destroy()
+            end
+        end
+    end
 end
 
 return state
